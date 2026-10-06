@@ -53,3 +53,8 @@ input.choix-select { width: 26vw; }
 
 /* Fin de phrase : le panneau des probabilités s'efface, la phrase et la morale restent. */
 .mots-scene:has(.barres-cadre.cache) { grid-template-columns: 1fr; }
+
+.debut-phrase input { width: 34vw; font-weight: 700; }
+.suggestions { display: flex; flex-wrap: wrap; align-items: center; gap: 1vh; }
+.suggestion { font: inherit; font-size: 1.9vh; border: 1px solid var(--ligne); background: var(--blanc); color: var(--encre); border-radius: 999px; padding: 0.6vh 1.6vh; cursor: pointer; }
+.suggestion:hover { border-color: var(--violet); color: var(--violet); }

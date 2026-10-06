@@ -15,7 +15,10 @@ const pct = (p) => `${Math.round(p * 100)} %`;
 async function demarrer() {
   t = await creerTransport();
   $("mode-local").textContent = t.local ? " · mode local" : "";
-  $("debut").innerHTML = DEBUTS.map((d) => `<option>${echapper(d)}</option>`).join("");
+  // Le début est libre ; les suggestions le remplissent d'un clic.
+  $("debut").value = DEBUTS[0];
+  $("suggestions").innerHTML = DEBUTS.map((d, i) => `<button type="button" class="suggestion" data-i="${i}">${echapper(d)}…</button>`).join("");
+  document.querySelectorAll(".suggestion").forEach((b) => { b.onclick = () => { $("debut").value = DEBUTS[b.dataset.i]; $("debut").focus(); }; });
   code = await partieAnimateur({ t, racine: "mots", memo: "mots-code", creer: async () => ({ etat: { phase: "attente" } }) });
   afficherAccueil("mots-jouer.html", code, t.local);
   t.ecouter(chemin("joueurs"), (j) => { joueurs = j || {}; majPrenoms(joueurs); majRecues(); });
@@ -24,10 +27,10 @@ async function demarrer() {
 
 // ─── Les étapes ──────────────────────────────────────────────────────────────
 async function commencer() {
-  const libre = $("debut-libre").value.trim();
+  const debut = $("debut").value.trim() || DEBUTS[0];
   await t.ecrire(chemin("propositions"), null); // les tours de la phrase précédente
   await t.ecrire(chemin("etat"), {
-    phase: "saisie", tour: 1, cle: "1", phrase: (libre || $("debut").value).replace(/\s+/g, " "),
+    phase: "saisie", tour: 1, cle: "1", phrase: debut.replace(/\s+/g, " "),
     mode: $("mode").value, duree: Number($("duree").value) || 15, debut: t.HORODATAGE,
   });
 }
@@ -140,6 +143,9 @@ function animerTirage() {
       $("tire").innerHTML = `${echapper(mot)} <small>tiré avec ${pct(choisi.p)} de chances${etat.mode === "probable" ? " — le plus probable" : ""}</small>`;
       $("tire").classList.remove("cache");
       if (choisi.mot !== FIN) $("phrase").innerHTML = `${echapper(etat.phrase)} <span class="nouveau-mot">${echapper(choisi.mot)}</span>`;
+      // On enchaîne seul au mot suivant (le bouton permet d'aller plus vite).
+      const tourTire = etat.tour;
+      setTimeout(() => { if (etat.phase === "tirage" && etat.tour === tourTire) tourSuivant(); }, 3500);
       return;
     }
     dessinerBarres(dist, mots[i++ % mots.length]);

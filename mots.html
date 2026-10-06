@@ -30,20 +30,20 @@
       </div>
       <div class="actions">
         <button class="bouton" id="lancer" disabled>Commencer la phrase</button>
-        <label class="aide">Début
-          <select id="debut" class="choix-select"></select>
+        <label class="aide debut-phrase">Début de la phrase (libre)
+          <input id="debut" class="choix-select" maxlength="80" />
         </label>
-        <label class="aide">ou <input id="debut-libre" class="choix-select" placeholder="votre propre début…" maxlength="80" /></label>
         <label class="aide">Le modèle est
           <select id="mode" class="choix-select">
             <option value="hasard" selected>créatif (tire au hasard)</option>
             <option value="probable">prudent (le plus probable)</option>
           </select>
         </label>
-        <label class="aide">Temps par mot
+        <label class="aide">Temps max par mot
           <select id="duree" class="choix-select"><option value="10">10 s</option><option value="15" selected>15 s</option><option value="25">25 s</option></select>
         </label>
       </div>
+      <div class="suggestions"><span class="aide">Suggestions :</span><span id="suggestions"></span><span class="aide">· on passe au mot suivant dès que tout le monde a répondu</span></div>
     </section>
 
     <section id="v-jeu" class="cache">

@@ -10,7 +10,6 @@ export const DEBUTS = [
   "Le machine learning, c'est",
   "Demain, l'intelligence artificielle va",
   "Pour réussir ses partiels, il faut",
-  "Le prof d'IA est",
   "Un modèle apprend quand",
 ];
 
