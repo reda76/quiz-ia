@@ -69,8 +69,21 @@ elle part de w = 0 et b = 0 et réduit l'erreur pas à pas (descente de gradient
 de la salle. Puis le classement final (machine comprise) et le vrai tarif. **Nouvelle manche**
 tire d'autres courses.
 
-Il utilise la partie `jeux` des règles de `database.rules.json` : **après une mise à jour du
+Les jeux utilisent les parties `jeux`, `mots` et `groupes` des règles de `database.rules.json` : **après une mise à jour du
 dépôt, recoller les règles** dans la console Firebase (Realtime Database → Règles → Publier).
+
+## « La salle est un ChatGPT »
+Écran : `animateur.html` → La salle est un ChatGPT. Un début de phrase s'affiche ; à chaque tour,
+chaque étudiant propose le mot suivant (un seul mot, ou « ⏹ finir la phrase »). Les propositions
+deviennent des probabilités en direct ; on tire le mot (modèle **créatif** : au hasard selon les
+probabilités, ou **prudent** : le plus probable) et la phrase s'allonge. Morale à la fin : prédire
+le mot suivant, sans vérifier, c'est ce que fait ChatGPT (cours 6.4).
+
+## « Qui se ressemble s'assemble »
+Écran : `animateur.html` → Qui se ressemble s'assemble. Chaque étudiant se place (anonymement) sur
+deux axes depuis son téléphone (sommeil × écran, cafés × trajet, sport × jeux vidéo) ; puis les
+k-moyennes forment 2 à 5 groupes étape par étape, sous les yeux de la salle ; la salle nomme les
+groupes (cours 3.2 : regrouper sans étiquette).
 
 ## Points
 Bonne réponse : de 1000 (immédiate) à 500 (au dernier moment), mesuré à l'heure du serveur.

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="theme-color" content="#6d5ae6" />
+  <title>Qui se ressemble s'assemble</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/machine.css" />
+  <link rel="stylesheet" href="css/jeux2.css" />
+</head>
+<body>
+  <main class="tel">
+    <div class="entete"><span id="qui"></span><span id="ou"></span></div>
+    <section id="v-rejoindre" class="carte cache">
+      <h1>Qui se ressemble s'assemble</h1>
+      <p>Entre ton prénom. Sur la carte, ton point restera anonyme.</p>
+      <form id="form">
+        <input class="champ" id="code" inputmode="numeric" autocomplete="off" placeholder="Code de la partie" maxlength="6" />
+        <input class="champ" id="prenom" autocomplete="given-name" placeholder="Ton prénom" maxlength="20" />
+        <button class="gros" id="entrer" type="submit">C'est parti</button>
+      </form>
+      <div class="erreur" id="erreur"></div>
+    </section>
+    <section id="v-message" class="centre cache">
+      <div class="grand" id="m-grand"></div>
+      <div class="moyen" id="m-moyen"></div>
+    </section>
+    <section id="v-placement" class="reglages cache">
+      <svg id="mini" class="mini"></svg>
+      <div class="curseur">
+        <div class="tete"><span id="lx"></span><span class="valeur" id="vx"></span></div>
+        <input type="range" id="rx" />
+      </div>
+      <div class="curseur">
+        <div class="tete"><span id="ly"></span><span class="valeur" id="vy"></span></div>
+        <input type="range" id="ry" />
+      </div>
+      <p class="aide-tel" id="statut-point">Règle les deux curseurs : ton point bouge en direct sur le grand écran.</p>
+    </section>
+  </main>
+  <script type="module" src="js/groupes-jouer.mjs"></script>
+</body>
+</html>

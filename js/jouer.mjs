@@ -44,13 +44,15 @@ $("form").onsubmit = async (e) => {
   $("entrer").disabled = true;
   try {
     if (!(await t.lire(`parties/${c}/hote`))) {
-      // Un seul endroit pour rejoindre : un code de « Battez la machine » mène à son jeu.
-      if (await t.lire(`jeux/${c}/hote`)) {
-        const u = new URL("machine-jouer.html", location.href);
-        u.searchParams.set("p", c);
-        if (t.local) u.searchParams.set("local", "1");
-        sessionStorage.setItem("machine-prenom", p);
-        return location.replace(u.toString());
+      // Un seul endroit pour rejoindre : le code d'un autre jeu mène à ce jeu, prénom compris.
+      for (const [racine, page] of [["jeux", "machine-jouer.html"], ["mots", "mots-jouer.html"], ["groupes", "groupes-jouer.html"]]) {
+        if (await t.lire(`${racine}/${c}/hote`)) {
+          const u = new URL(page, location.href);
+          u.searchParams.set("p", c);
+          if (t.local) u.searchParams.set("local", "1");
+          sessionStorage.setItem("quiz-ia-prenom-transmis", p);
+          return location.replace(u.toString());
+        }
       }
       throw new Error("Partie introuvable : vérifie le code.");
     }

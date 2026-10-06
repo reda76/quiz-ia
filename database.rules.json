@@ -80,6 +80,69 @@
           }
         }
       }
+    },
+    "mots": {
+      "$code": {
+        ".validate": "$code.matches(/^[0-9]{6}$/)",
+        ".write": "auth != null && (!data.exists() || data.child('hote').val() === auth.uid)",
+        "hote": {
+          ".read": "auth != null"
+        },
+        "creeLe": {
+          ".read": "auth != null"
+        },
+        "etat": {
+          ".read": "auth != null"
+        },
+        "joueurs": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('mots/' + $code + '/hote').exists()",
+            ".validate": "newData.hasChildren(['prenom', 'rejointLe']) && newData.child('prenom').isString() && newData.child('prenom').val().length >= 1 && newData.child('prenom').val().length <= 20 && newData.child('rejointLe').val() === now"
+          }
+        },
+        "propositions": {
+          ".read": "auth != null",
+          "$tour": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('mots/' + $code + '/joueurs/' + $uid).exists() && root.child('mots/' + $code + '/etat/phase').val() === 'saisie' && root.child('mots/' + $code + '/etat/cle').val() === $tour",
+              ".validate": "newData.hasChildren(['mot', 't']) && newData.child('mot').isString() && newData.child('mot').val().length >= 1 && newData.child('mot').val().length <= 24 && newData.child('t').val() === now"
+            }
+          }
+        }
+      }
+    },
+    "groupes": {
+      "$code": {
+        ".validate": "$code.matches(/^[0-9]{6}$/)",
+        ".write": "auth != null && (!data.exists() || data.child('hote').val() === auth.uid)",
+        "hote": {
+          ".read": "auth != null"
+        },
+        "creeLe": {
+          ".read": "auth != null"
+        },
+        "etat": {
+          ".read": "auth != null"
+        },
+        "joueurs": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('groupes/' + $code + '/hote').exists()",
+            ".validate": "newData.hasChildren(['prenom', 'rejointLe']) && newData.child('prenom').isString() && newData.child('prenom').val().length >= 1 && newData.child('prenom').val().length <= 20 && newData.child('rejointLe').val() === now"
+          }
+        },
+        "points": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('groupes/' + $code + '/joueurs/' + $uid).exists() && root.child('groupes/' + $code + '/etat/phase').val() === 'placement'",
+            ".validate": "newData.hasChildren(['x', 'y']) && newData.child('x').isNumber() && newData.child('y').isNumber() && newData.child('x').val() >= 0 && newData.child('x').val() <= 200 && newData.child('y').val() >= 0 && newData.child('y').val() <= 200"
+          }
+        },
+        "resultat": {
+          ".read": "auth != null"
+        }
+      }
     }
   }
 }

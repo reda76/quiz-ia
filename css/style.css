@@ -163,16 +163,19 @@ pre.code {
 
 /* ── Choix du jeu (animateur.html) ── */
 .retour-choix { color: var(--violet); text-decoration: none; font-weight: 700; margin-right: 1.5vh; }
-.ecran > .choix-jeux { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 3vw; align-items: stretch; padding: 4vh 0; }
+.ecran > .choix-jeux { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 2.4vh 2.4vw; align-items: stretch; padding: 1vh 0; }
 .carte-jeu {
-  display: flex; flex-direction: column; gap: 2vh; padding: 5vh 4vh; border-radius: 28px; text-decoration: none;
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto 1fr auto; column-gap: 2.4vh; row-gap: 1vh; padding: 3vh 3.4vh; border-radius: 28px; text-decoration: none;
   background: var(--blanc); color: var(--encre); border-top: 1.4vh solid var(--c);
   box-shadow: 0 14px 40px rgba(30, 36, 89, 0.1); transition: transform 0.15s, box-shadow 0.15s;
 }
 .carte-jeu:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(30, 36, 89, 0.16); }
+.carte-jeu .icone-jeu { grid-row: 1 / 3; }
+.carte-jeu .desc-jeu { grid-column: 2; }
+.carte-jeu .go { grid-column: 2; }
 .icone-jeu { width: 11vh; height: 11vh; border-radius: 24px; background: var(--c); color: var(--blanc); display: grid; place-items: center; font-size: 7vh; font-weight: 800; }
-.nom-jeu { font-size: 6vh; font-weight: 800; line-height: 1; }
-.desc-jeu { font-size: 2.6vh; line-height: 1.4; color: var(--doux); flex: 1; }
+.nom-jeu { font-size: 4.2vh; font-weight: 800; line-height: 1.05; align-self: end; }
+.desc-jeu { font-size: 2.3vh; line-height: 1.4; color: var(--doux); flex: 1; }
 .go { font-size: 3vh; font-weight: 800; color: var(--c); }
 @media (max-width: 760px) { .ecran > .choix-jeux { grid-template-columns: 1fr; } }
 .icone-jeu svg { width: 60%; height: 60%; }

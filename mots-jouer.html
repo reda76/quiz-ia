@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="theme-color" content="#6d5ae6" />
+  <title>La salle est un ChatGPT</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/machine.css" />
+  <link rel="stylesheet" href="css/jeux2.css" />
+</head>
+<body>
+  <main class="tel">
+    <div class="entete"><span id="qui"></span><span id="ou"></span></div>
+    <section id="v-rejoindre" class="carte cache">
+      <h1>La salle est un ChatGPT</h1>
+      <p>Entre ton prénom, puis propose le mot suivant de la phrase à chaque tour.</p>
+      <form id="form">
+        <input class="champ" id="code" inputmode="numeric" autocomplete="off" placeholder="Code de la partie" maxlength="6" />
+        <input class="champ" id="prenom" autocomplete="given-name" placeholder="Ton prénom" maxlength="20" />
+        <button class="gros" id="entrer" type="submit">C'est parti</button>
+      </form>
+      <div class="erreur" id="erreur"></div>
+    </section>
+    <section id="v-message" class="centre cache">
+      <div class="grand" id="m-grand"></div>
+      <div class="moyen" id="m-moyen"></div>
+    </section>
+    <section id="v-saisie" class="saisie cache">
+      <div class="phrase-tel" id="s-phrase"></div>
+      <form id="f-mot" class="saisie-form" autocomplete="off">
+        <input class="champ grand-champ" id="mot" placeholder="le mot suivant…" maxlength="24" autocapitalize="off" />
+        <button class="gros" type="submit">Envoyer</button>
+      </form>
+      <button class="gros fin-phrase" id="fin-phrase" type="button">⏹ Finir la phrase ici</button>
+      <p class="aide-tel">Un seul mot. La salle tirera parmi toutes les propositions.</p>
+    </section>
+  </main>
+  <script type="module" src="js/mots-jouer.mjs"></script>
+</body>
+</html>

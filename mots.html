@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>La salle est un ChatGPT · Animation</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/machine.css" />
+  <link rel="stylesheet" href="css/jeux2.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+</head>
+<body>
+  <main class="ecran">
+    <div class="bandeau">
+      <span><a class="retour-choix" href="animateur.html">← Changer de jeu</a> <strong>La salle est un ChatGPT</strong> · deviner le mot suivant<span id="mode-local"></span></span>
+      <span id="etat-bandeau"></span>
+    </div>
+
+    <section id="v-accueil" class="cache">
+      <div class="accueil">
+        <div class="qr" id="qr"></div>
+        <div class="rejoindre">
+          <h1>La salle est un ChatGPT</h1>
+          <p class="consigne">À chaque tour, proposez <b>le mot suivant</b> de la phrase. Vos propositions deviennent des probabilités, et on tire le mot… comme un modèle de langage.</p>
+          <div class="adresse" id="adresse"></div>
+          <div class="code" id="code"></div>
+          <div class="compte" id="compte">En attente des joueurs…</div>
+          <div class="prenoms" id="prenoms"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="bouton" id="lancer" disabled>Commencer la phrase</button>
+        <label class="aide">Début
+          <select id="debut" class="choix-select"></select>
+        </label>
+        <label class="aide">ou <input id="debut-libre" class="choix-select" placeholder="votre propre début…" maxlength="80" /></label>
+        <label class="aide">Le modèle est
+          <select id="mode" class="choix-select">
+            <option value="hasard" selected>créatif (tire au hasard)</option>
+            <option value="probable">prudent (le plus probable)</option>
+          </select>
+        </label>
+        <label class="aide">Temps par mot
+          <select id="duree" class="choix-select"><option value="10">10 s</option><option value="15" selected>15 s</option><option value="25">25 s</option></select>
+        </label>
+      </div>
+    </section>
+
+    <section id="v-jeu" class="cache">
+      <div class="phrase" id="phrase"></div>
+      <div class="mots-scene">
+        <div class="barres-cadre">
+          <h3 id="b-titre">Le mot suivant, selon la salle</h3>
+          <ol class="barres" id="barres"></ol>
+        </div>
+        <aside class="panneau">
+          <div class="temps" id="temps"></div>
+          <div class="aide-grande" id="recues"></div>
+          <div class="tire cache" id="tire"></div>
+          <div class="actions-panneau">
+            <button class="bouton" id="action"></button>
+            <button class="bouton secondaire" id="finir">Finir la phrase</button>
+          </div>
+        </aside>
+      </div>
+      <div class="morale cache" id="morale">
+        Vous venez d'être un <b>modèle de langage</b> : prédire le mot suivant à partir de ce que vous avez déjà vu.
+        ChatGPT fait exactement ça, avec des milliards de textes au lieu de vos têtes — et sans vérifier si c'est vrai :
+        il enchaîne le plus probable. D'où des réponses qui sonnent juste… et parfois n'importe quoi, avec aplomb.
+      </div>
+    </section>
+    <p class="erreur" id="erreur"></p>
+  </main>
+  <script type="module" src="js/mots-animateur.mjs"></script>
+</body>
+</html>

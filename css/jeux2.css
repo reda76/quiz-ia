@@ -1,0 +1,55 @@
+/* « La salle est un ChatGPT » et « Qui se ressemble s'assemble » (complète machine.css). */
+.choix-select { font: inherit; font-size: 2vh; padding: 0.6vh 1vh; border-radius: 10px; border: 2px solid var(--ligne); margin-left: 0.8vh; background: var(--blanc); color: var(--encre); }
+input.choix-select { width: 26vw; }
+.aide-grande { font-size: 2.8vh; color: var(--doux); }
+.aide-grande b { color: var(--encre); font-size: 3.4vh; }
+
+/* ── La salle est un ChatGPT ── */
+.phrase {
+  font-size: 5.4vh; font-weight: 800; line-height: 1.25; background: var(--blanc); border-radius: var(--rayon);
+  padding: 3vh 4vh; box-shadow: 0 10px 30px rgba(30, 36, 89, 0.08); min-height: 12vh;
+}
+.curseur-texte { color: var(--violet); animation: clignote 1s steps(1) infinite; }
+@keyframes clignote { 50% { opacity: 0; } }
+.nouveau-mot { color: var(--orange); background: #fff1e8; border-radius: 10px; padding: 0 0.6vh; animation: arrivee 0.5s ease-out; }
+.mots-scene { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 28vw; gap: 2vw; min-height: 0; }
+.barres-cadre { background: var(--blanc); border-radius: var(--rayon); padding: 2.4vh 3vh; }
+.barres-cadre h3 { margin: 0 0 1.6vh; font-size: 2.2vh; color: var(--doux); text-transform: uppercase; letter-spacing: 0.08em; }
+.barres { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.1vh; }
+.barres li { display: grid; grid-template-columns: 22vw 1fr 9vh; align-items: center; gap: 1.6vh; font-size: 3vh; font-weight: 700; border-radius: 12px; padding: 0.5vh 1vh; transition: background 0.1s; }
+.barres li .mot { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barres .jauge { height: 3.2vh; background: var(--fond); border-radius: 999px; overflow: hidden; }
+.barres .jauge span { display: block; height: 100%; background: var(--violet); border-radius: 999px; transition: width 0.4s ease-out; }
+.barres .proba { text-align: right; font-variant-numeric: tabular-nums; color: var(--doux); }
+.barres li.fin .jauge span { background: var(--doux); }
+.barres li.choisi { background: #fff1e8; }
+.barres li.choisi .jauge span { background: var(--orange); }
+.barres li.vide { color: var(--doux); font-weight: 500; display: block; }
+.tire { background: var(--encre); color: var(--blanc); border-radius: var(--rayon); padding: 2vh; font-size: 4.4vh; font-weight: 800; }
+.tire small { display: block; font-size: 2.1vh; font-weight: 500; opacity: 0.8; margin-top: 0.6vh; }
+.morale { background: var(--blanc); border-left: 1vh solid var(--orange); border-radius: var(--rayon); padding: 2.4vh 3vh; font-size: 2.8vh; line-height: 1.4; }
+
+.saisie { display: flex; flex-direction: column; gap: 14px; }
+.phrase-tel { background: var(--blanc); border-radius: var(--rayon); padding: 18px; font-size: 22px; font-weight: 800; line-height: 1.3; }
+.trou { color: var(--violet); }
+.saisie-form { display: flex; flex-direction: column; gap: 10px; }
+.grand-champ { font-size: 26px; text-align: center; margin: 0; }
+.fin-phrase { background: var(--blanc); color: var(--encre); border: 2px solid var(--ligne); }
+.aide-tel { color: var(--doux); font-size: 14px; text-align: center; margin: 0; }
+.phrase-finale { display: block; font-size: 22px; font-weight: 800; color: var(--encre); margin-top: 6px; }
+
+/* ── Qui se ressemble s'assemble ── */
+.etape-k { background: var(--encre); color: var(--blanc); border-radius: var(--rayon); padding: 1.6vh 2vh; font-size: 2.3vh; line-height: 1.4; }
+.etape-k strong { display: block; font-size: 3.4vh; color: var(--orange); }
+.groupes-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1vh; overflow: auto; }
+.groupes-liste li { display: grid; grid-template-columns: 1fr auto; gap: 0.4vh 1vh; background: var(--blanc); border-left: 1vh solid var(--c); border-radius: 12px; padding: 1.2vh 1.6vh; }
+.groupes-liste .nom-groupe { font: inherit; font-size: 2.8vh; font-weight: 800; color: var(--c); border: none; border-bottom: 2px dashed var(--ligne); background: transparent; padding: 0; min-width: 0; }
+.groupes-liste .nom-groupe:focus { outline: none; border-bottom-color: var(--c); }
+.groupes-liste .effectif { font-size: 2.2vh; font-weight: 700; color: var(--doux); align-self: center; }
+.groupes-liste .portrait { grid-column: 1 / -1; font-size: 2.1vh; color: var(--doux); }
+.k-choix { font-size: 2.2vh; }
+.nom-groupe-tel { display: inline-block; margin-top: 10px; color: var(--blanc); border-radius: 999px; padding: 8px 22px; font-size: 26px; }
+.mini .moi { fill: var(--encre); }
+
+/* Fin de phrase : le panneau des probabilités s'efface, la phrase et la morale restent. */
+.mots-scene:has(.barres-cadre.cache) { grid-template-columns: 1fr; }

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Qui se ressemble s'assemble · Animation</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/machine.css" />
+  <link rel="stylesheet" href="css/jeux2.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+</head>
+<body>
+  <main class="ecran">
+    <div class="bandeau">
+      <span><a class="retour-choix" href="animateur.html">← Changer de jeu</a> <strong>Qui se ressemble s'assemble</strong> · regrouper sans étiquette<span id="mode-local"></span></span>
+      <span id="etat-bandeau"></span>
+    </div>
+
+    <section id="v-accueil" class="cache">
+      <div class="accueil">
+        <div class="qr" id="qr"></div>
+        <div class="rejoindre">
+          <h1>Qui se ressemble s'assemble</h1>
+          <p class="consigne">Placez-vous sur la carte en répondant à deux questions. Puis la machine forme des groupes <b>sans aucune étiquette</b>… et c'est à vous de dire ce qu'ils veulent dire.</p>
+          <div class="adresse" id="adresse"></div>
+          <div class="code" id="code"></div>
+          <div class="compte" id="compte">En attente des joueurs…</div>
+          <div class="prenoms" id="prenoms"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="bouton" id="lancer" disabled>Ouvrir la carte</button>
+        <label class="aide">Les deux questions <select id="axes" class="choix-select"></select></label>
+      </div>
+    </section>
+
+    <section id="v-jeu" class="cache">
+      <div class="scene">
+        <div class="graphique-cadre"><svg id="nuage" class="graphique"></svg></div>
+        <aside class="panneau">
+          <div class="temps" id="titre"></div>
+          <div class="aide-grande" id="places"></div>
+          <div class="etape-k cache" id="etape"></div>
+          <ol class="groupes-liste" id="liste"></ol>
+          <label class="aide k-choix" id="k-choix">Nombre de groupes
+            <select id="k" class="choix-select"><option>2</option><option selected>3</option><option>4</option><option>5</option></select>
+          </label>
+          <div class="actions-panneau">
+            <button class="bouton" id="action"></button>
+            <button class="bouton secondaire cache" id="autre">Autres questions</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+    <p class="erreur" id="erreur"></p>
+  </main>
+  <script type="module" src="js/groupes-animateur.mjs"></script>
+</body>
+</html>

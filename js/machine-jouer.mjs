@@ -26,8 +26,8 @@ async function demarrer() {
   if (memo && memo.code === code && (await t.lire(`jeux/${code}/joueurs/${t.uid}`))) { prenom = memo.prenom; return suivre(); }
   montrer("rejoindre");
   // Arrivé depuis la page commune avec un prénom déjà saisi : on rejoint directement.
-  const prenomTransmis = sessionStorage.getItem("machine-prenom");
-  if (prenomTransmis && code) { sessionStorage.removeItem("machine-prenom"); $("prenom").value = prenomTransmis; $("form").requestSubmit(); }
+  const prenomTransmis = sessionStorage.getItem("quiz-ia-prenom-transmis");
+  if (prenomTransmis && code) { sessionStorage.removeItem("quiz-ia-prenom-transmis"); $("prenom").value = prenomTransmis; $("form").requestSubmit(); }
 }
 
 $("form").onsubmit = async (e) => {
