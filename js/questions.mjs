@@ -3,7 +3,8 @@
 // partir de 0, `duree` en secondes, `explication` affichée avec la bonne réponse, `code`
 // facultatif : un extrait affiché en police à chasse fixe sous la question).
 //
-// Les réponses des questions Python ont été vérifiées en exécutant le code.
+// Toutes les réponses du cours sont DANS le PowerPoint (règle du formateur) ; celles des
+// questions Python ont été vérifiées en exécutant le code.
 
 export const TITRE = "IA, machine learning, deep learning : le quiz";
 
@@ -16,17 +17,16 @@ export const QUESTIONS = [
     explication: "Une tâche, une mesure de performance, une expérience : si la mesure s'améliore avec l'expérience, il apprend.",
   },
   {
-    texte: "Un système expert des années 1980, fait de règles écrites par des médecins, c'est…",
-    choix: ["De l'IA, mais pas du machine learning", "Du machine learning", "Du deep learning", "Ni de l'IA ni du machine learning"],
+    texte: "Le compteur du taxi applique une règle écrite à la main. Dans les trois cercles, il fait partie…",
+    choix: ["De l'IA, mais pas du machine learning", "Du machine learning", "Du deep learning", "D'aucun des trois cercles"],
     bonne: 0,
-    explication: "Le grand cercle de l'IA contient aussi les systèmes à règles écrites à la main. Le machine learning, lui, apprend ses règles à partir d'exemples.",
+    explication: "Le grand cercle de l'IA contient aussi les systèmes à règles écrites à la main, comme le compteur. Le machine learning, lui, apprend à partir d'exemples.",
   },
   {
-    texte: "Prix = w × distance + b, avec w = 2 €/km et b = 3 €. Une course a coûté 19 €. Quelle distance ?",
-    choix: ["6,5 km", "8 km", "9,5 km", "11 km"],
+    texte: "Prix = w × distance + b. Sur le graphique (distance à l'horizontale, prix à la verticale), b correspond à…",
+    choix: ["La pente de la droite", "La hauteur où la droite démarre, à zéro kilomètre", "La distance maximale", "L'erreur moyenne"],
     bonne: 1,
-    explication: "19 − 3 = 16, puis 16 ÷ 2 = 8 km. On a inversé le modèle : connaissant le prix, on retrouve la distance.",
-    duree: 40,
+    explication: "b, la prise en charge, c'est la hauteur de départ à zéro kilomètre. w, le prix au kilomètre, c'est la pente.",
   },
   {
     texte: "Le tarif de nuit double le prix au kilomètre mais garde la même prise en charge. Sur le graphique, la droite…",
@@ -36,10 +36,10 @@ export const QUESTIONS = [
     duree: 30,
   },
   {
-    texte: "L'appli annonce 22 €, le client paie 25 €. Pour réduire cette erreur, l'apprentissage va…",
-    choix: ["Diminuer w et b", "Augmenter légèrement w et/ou b", "Modifier la distance de la course", "Ne rien faire : l'erreur est normale"],
+    texte: "L'appli annonce 22 €, le client paie 25 €. Que fait l'apprentissage de cette erreur de 3 € ?",
+    choix: ["Il l'ignore : l'erreur est normale", "Il ajuste légèrement w et b dans le sens qui réduit l'écart", "Il modifie la distance de la course", "Il recommence l'apprentissage depuis zéro"],
     bonne: 1,
-    explication: "L'appli a visé trop bas : on tourne les boutons dans le sens qui rapproche la prédiction du prix payé, un petit pas à la fois.",
+    explication: "L'erreur est une information : l'appli tourne un peu ses boutons w et b dans le sens qui réduit l'écart, course après course.",
   },
   {
     texte: "Prédire si une course arrivera en retard (oui ou non), c'est une tâche de…",
@@ -66,18 +66,18 @@ export const QUESTIONS = [
     explication: "Corrélation n'est pas causalité. Le machine learning repère la corrélation ; c'est à vous de chercher la cause.",
   },
   {
-    texte: "Sur 1 000 e-mails, 10 sont des spams. Un filtre en bloque 20, dont 8 vrais spams. Son RAPPEL ?",
-    choix: ["8 %", "40 %", "80 %", "98 %"],
+    texte: "Un spam sur cent. Le filtre « paresseux » laisse TOUT passer. Quel est son rappel ?",
+    choix: ["99 %", "100 %", "0", "50 %"],
     bonne: 2,
-    explication: "Rappel = spams attrapés ÷ spams existants = 8 ÷ 10 = 80 %.",
-    duree: 45,
+    explication: "Il a raison 99 fois sur 100… mais n'attrape aucun spam : son rappel est de zéro. Le taux de réussite cache un modèle inutile.",
+    duree: 30,
   },
   {
-    texte: "Même filtre : 20 e-mails bloqués, dont 8 vrais spams. Sa PRÉCISION ?",
-    choix: ["8 %", "40 %", "80 %", "98 %"],
+    texte: "« Parmi les e-mails envoyés dans les spams, combien en étaient vraiment ? » Cette question mesure…",
+    choix: ["Le rappel", "La précision", "Le taux de réussite", "L'erreur moyenne"],
     bonne: 1,
-    explication: "Précision = vrais spams parmi les bloqués = 8 ÷ 20 = 40 %. Douze e-mails normaux ont fini dans les spams.",
-    duree: 40,
+    explication: "La précision. Le rappel pose l'autre question : parmi tous les vrais spams, combien le filtre en a-t-il attrapé ?",
+    duree: 30,
   },
   {
     texte: "Erreur sur les données d'entraînement : 1 %. Erreur sur les données de test : 30 %. Diagnostic ?",
@@ -98,10 +98,10 @@ export const QUESTIONS = [
     explication: "Le perceptron date de 1958. Ce qui a changé : les données, les cartes graphiques et les algorithmes, réunis ensemble.",
   },
   {
-    texte: "ChatGPT cite parfois un livre qui n'existe pas. Pourquoi ?",
-    choix: ["Il ment volontairement", "Il prédit la suite la plus plausible, pas la plus vraie", "Il recopie une mauvaise page web", "Il manque de mémoire"],
+    texte: "ChatGPT, au fond, c'est un immense réseau entraîné à…",
+    choix: ["Chercher la réponse sur Internet", "Deviner le mot suivant", "Comprendre les phrases comme un humain", "Recopier des textes mot pour mot"],
     bonne: 1,
-    explication: "Entraîné à deviner le mot suivant, il produit ce qui sonne juste. Plausible n'est pas vrai : vérifiez toujours.",
+    explication: "Entraîné sur d'énormes quantités de textes à deviner le mot suivant : prédire, comparer, corriger. Au lieu d'un prix, il prédit un mot.",
   },
 
   // ─── Python (5) : qui sait coder ? ─────────────────────────────────────────
