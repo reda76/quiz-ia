@@ -47,13 +47,29 @@ async function transportFirebase() {
 }
 
 // ─── Local (onglets du même navigateur) ─────────────────────────────────────
+// Une CASE de localStorage par chemin écrit (« quiz-ia-local:jeux/123456/droites/abc »), et non
+// un seul bloc : deux onglets qui écrivent en même temps à des chemins différents (deux joueurs
+// qui bougent leur droite) ne s'écrasent plus. Écrire un chemin efface les cases en dessous ;
+// on relit l'arbre en posant les cases de la moins profonde à la plus profonde.
 const CLE = "quiz-ia-local";
 const HORODATAGE_LOCAL = { ".sv": "timestamp" };
-
-function lireTout() {
-  try { return JSON.parse(localStorage.getItem(CLE) || "{}"); } catch { return {}; }
-}
 const morceaux = (chemin) => chemin.split("/").filter(Boolean);
+
+function cases() {
+  const out = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k?.startsWith(`${CLE}:`)) out.push(k.slice(CLE.length + 1));
+  }
+  return out;
+}
+function lireTout() {
+  const racine = {};
+  for (const c of cases().sort((a, b) => morceaux(a).length - morceaux(b).length)) {
+    try { poser(racine, c, JSON.parse(localStorage.getItem(`${CLE}:${c}`))); } catch { /* case illisible : ignorée */ }
+  }
+  return racine;
+}
 function obtenir(racine, chemin) {
   let n = racine;
   for (const m of morceaux(chemin)) { if (n == null || typeof n !== "object") return null; n = n[m]; }
@@ -72,19 +88,22 @@ function poser(racine, chemin, valeur) {
   ms.slice(0, -1).forEach((m) => { if (n[m] == null || typeof n[m] !== "object") n[m] = {}; n = n[m]; });
   if (valeur === null) delete n[ms.at(-1)]; else n[ms.at(-1)] = valeur;
 }
+function ecrireCase(chemin, valeur) {
+  const c = morceaux(chemin).join("/");
+  for (const k of cases()) if (k === c || k.startsWith(`${c}/`)) localStorage.removeItem(`${CLE}:${k}`);
+  if (valeur !== null && valeur !== undefined) localStorage.setItem(`${CLE}:${c}`, JSON.stringify(valeur));
+}
 
 function transportLocal() {
   const canal = new BroadcastChannel(CLE);
   const auditeurs = new Set();
   const notifier = () => { const tout = lireTout(); for (const a of auditeurs) a(tout); };
-  canal.onmessage = notifier;
-  const ecrireTout = (modif) => {
-    const tout = lireTout();
-    modif(tout);
-    localStorage.setItem(CLE, JSON.stringify(tout));
-    canal.postMessage("change");
-    queueMicrotask(notifier);
-  };
+  // Le message peut arriver AVANT que les cases écrites par l'autre onglet soient visibles
+  // ici : on relit aussitôt, puis encore un peu plus tard.
+  canal.onmessage = () => { notifier(); setTimeout(notifier, 120); setTimeout(notifier, 600); };
+  // Pas d'écoute de l'événement « storage » : il arrive case par case, PENDANT une écriture, et
+  // montrerait aux autres onglets des états intermédiaires (une phase périmée, par exemple).
+  const apres = () => { canal.postMessage("change"); queueMicrotask(notifier); };
   let uid = sessionStorage.getItem(`${CLE}-uid`);
   if (!uid) { uid = `local-${Math.random().toString(36).slice(2, 10)}`; sessionStorage.setItem(`${CLE}-uid`, uid); }
   return {
@@ -99,8 +118,11 @@ function transportLocal() {
       a(lireTout());
       return () => auditeurs.delete(a);
     },
-    ecrire: async (chemin, valeur) => ecrireTout((t) => poser(t, chemin, remplacerHorodatages(structuredClone(valeur)))),
-    maj: async (chemin, objet) => ecrireTout((t) => { for (const [k, v] of Object.entries(objet)) poser(t, `${chemin}/${k}`, remplacerHorodatages(structuredClone(v))); }),
+    ecrire: async (chemin, valeur) => { ecrireCase(chemin, remplacerHorodatages(structuredClone(valeur))); apres(); },
+    maj: async (chemin, objet) => {
+      for (const [k, v] of Object.entries(objet)) ecrireCase(`${chemin}/${k}`, remplacerHorodatages(structuredClone(v)));
+      apres();
+    },
     lire: async (chemin) => obtenir(lireTout(), chemin),
   };
 }

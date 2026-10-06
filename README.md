@@ -58,6 +58,18 @@ du même navigateur : chaque onglet est un joueur.
   l'écran d'accueil, avec un fichier `{ "titre": "…", "questions": [ … ] }` gardé sur ton
   ordinateur. Les questions ne sont alors jamais dans le site.
 
+## Le jeu « Battez la machine »
+Écran d'animation : `…/quiz-ia/machine.html`. Les étudiants scannent le QR code et règlent sur
+leur téléphone **b** (prise en charge) et **w** (prix au km) pour que leur droite passe au plus
+près des courses de taxi affichées. Toutes les droites apparaissent en direct sur le grand
+écran, avec un classement à l'écart moyen en euros. À la fin du temps, **Lancer la machine** :
+elle part de w = 0 et b = 0 et réduit l'erreur pas à pas (descente de gradient), sous les yeux
+de la salle. Puis le classement final (machine comprise) et le vrai tarif. **Nouvelle manche**
+tire d'autres courses.
+
+Il utilise la partie `jeux` des règles de `database.rules.json` : **après une mise à jour du
+dépôt, recoller les règles** dans la console Firebase (Realtime Database → Règles → Publier).
+
 ## Points
 Bonne réponse : de 1000 (immédiate) à 500 (au dernier moment), mesuré à l'heure du serveur.
 Mauvaise réponse ou pas de réponse : 0.

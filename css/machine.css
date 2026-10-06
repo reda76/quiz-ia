@@ -1,0 +1,51 @@
+/* « Battez la machine » : le graphique domine l'écran, le panneau de droite dit l'essentiel. */
+.consigne { font-size: 2.6vh; line-height: 1.35; color: var(--encre); margin: 0 0 1.5vh; max-width: 60vw; }
+.choix-duree { font: inherit; font-size: 2vh; padding: 0.6vh 1vh; border-radius: 10px; border: 2px solid var(--ligne); margin-left: 1vh; }
+
+.scene { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 30vw; gap: 2vw; min-height: 0; }
+.graphique-cadre { background: var(--blanc); border-radius: var(--rayon); padding: 1.5vh; box-shadow: 0 10px 30px rgba(30, 36, 89, 0.08); min-height: 0; display: flex; }
+.graphique { width: 100%; height: 100%; max-height: 82vh; }
+.graphique .grille { stroke: #eceaf8; stroke-width: 1; }
+.graphique .graduation, .graphique .axe { fill: var(--doux); font-family: var(--titre); }
+.graphique .course { fill: var(--encre); stroke: var(--blanc); stroke-width: 2; }
+.graphique .residu { stroke: var(--faux); stroke-width: 2; stroke-dasharray: 4 4; opacity: 0.7; }
+.graphique .etiquette { paint-order: stroke; stroke: var(--blanc); stroke-width: 5px; font-family: var(--titre); }
+
+.panneau { display: flex; flex-direction: column; gap: 1.4vh; min-height: 0; max-height: 86vh; }
+.temps { font-size: 6vh; font-weight: 800; color: var(--violet); line-height: 1; }
+.temps.urgent { color: var(--faux); }
+.temps small { display: block; font-size: 2vh; color: var(--doux); font-weight: 600; margin-top: 0.6vh; }
+.panneau h3 { margin: 0; font-size: 2.4vh; color: var(--doux); text-transform: uppercase; letter-spacing: 0.08em; }
+.classement { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.8vh; overflow: hidden; }
+.classement li { display: flex; align-items: center; gap: 1.2vh; background: var(--blanc); border-radius: 12px; padding: 1vh 1.6vh; font-size: 2.4vh; font-weight: 700; }
+.classement .pastille { width: 1.6vh; height: 1.6vh; border-radius: 50%; flex: none; }
+.classement .rang { width: 3vh; color: var(--doux); }
+.classement .ecart { margin-left: auto; font-variant-numeric: tabular-nums; }
+.classement li.machine { background: var(--orange); color: var(--blanc); }
+.classement li.machine .rang { color: var(--blanc); }
+.machine-etat { background: var(--encre); color: var(--blanc); border-radius: var(--rayon); padding: 1.6vh 2vh; font-size: 2.4vh; line-height: 1.4; }
+.machine-etat strong { font-size: 4vh; display: block; color: var(--orange); }
+.courbe { width: 100%; height: 14vh; background: var(--blanc); border-radius: 12px; }
+.courbe path { fill: none; stroke: var(--orange); stroke-width: 3; }
+.actions-panneau { margin-top: auto; display: flex; gap: 1.2vh; flex-wrap: wrap; }
+.verdict-final { background: var(--blanc); border-radius: var(--rayon); padding: 1.6vh 2vh; font-size: 2.3vh; line-height: 1.45; }
+.verdict-final b { color: var(--violet); white-space: nowrap; }
+
+/* ── Téléphone ── */
+.reglages { display: flex; flex-direction: column; gap: 14px; }
+.curseur { background: var(--blanc); border-radius: var(--rayon); padding: 14px 16px; box-shadow: 0 4px 14px rgba(30, 36, 89, 0.06); }
+.curseur .tete { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; font-size: 17px; }
+.curseur .valeur { white-space: nowrap; font-size: 26px; font-weight: 800; color: var(--violet); font-variant-numeric: tabular-nums; }
+.curseur .sens { font-size: 13px; color: var(--doux); font-weight: 500; }
+.curseur input[type="range"] { width: 100%; height: 44px; accent-color: var(--violet); margin-top: 6px; }
+.curseur .pas { display: flex; justify-content: space-between; gap: 10px; margin-top: 4px; }
+.curseur .pas button { flex: 1; border: 2px solid var(--ligne); background: var(--fond); border-radius: 12px; padding: 8px; font-size: 18px; font-weight: 800; color: var(--encre); }
+.mini { width: 100%; height: auto; background: var(--blanc); border-radius: var(--rayon); }
+.mini .grille { stroke: #eceaf8; stroke-width: 1; }
+.mini .graduation, .mini .axe { fill: var(--doux); }
+.mini .course { fill: var(--encre); }
+.mini .residu { stroke: var(--faux); stroke-width: 1.5; stroke-dasharray: 3 3; opacity: 0.7; }
+.score-tel { display: flex; justify-content: space-between; align-items: center; background: var(--encre); color: var(--blanc); border-radius: var(--rayon); padding: 14px 18px; }
+.score-tel .ecart { font-size: 26px; font-weight: 800; }
+.score-tel .ecart small { display: block; font-size: 12px; font-weight: 500; opacity: 0.75; }
+.score-tel .rang { font-size: 20px; font-weight: 800; color: var(--orange); }

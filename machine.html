@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Battez la machine · Animation</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/machine.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+</head>
+<body>
+  <main class="ecran">
+    <div class="bandeau">
+      <span><strong>Battez la machine</strong> · prix = w × distance + b<span id="mode"></span></span>
+      <span id="etat-bandeau"></span>
+    </div>
+
+    <!-- ACCUEIL -->
+    <section id="v-accueil" class="cache">
+      <div class="accueil">
+        <div class="qr" id="qr"></div>
+        <div class="rejoindre">
+          <h1>Battez la machine</h1>
+          <p class="consigne">Réglez la prise en charge <b>b</b> et le prix au kilomètre <b>w</b> pour que votre droite passe au plus près des courses passées.</p>
+          <div class="adresse" id="adresse"></div>
+          <div class="code" id="code"></div>
+          <div class="compte" id="compte">En attente des joueurs…</div>
+          <div class="prenoms" id="prenoms"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="bouton" id="lancer" disabled>Lancer la manche</button>
+        <label class="aide">Durée
+          <select id="duree" class="choix-duree">
+            <option value="60">1 min</option>
+            <option value="90" selected>1 min 30</option>
+            <option value="120">2 min</option>
+            <option value="180">3 min</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- JEU / MACHINE / RÉSULTAT : le graphique + le panneau -->
+    <section id="v-jeu" class="cache">
+      <div class="scene">
+        <div class="graphique-cadre">
+          <svg id="graphique" class="graphique"></svg>
+        </div>
+        <aside class="panneau">
+          <div id="p-temps" class="temps"></div>
+          <div id="p-machine" class="machine-etat cache"></div>
+          <div id="p-tarif" class="verdict-final cache"></div>
+          <svg id="courbe" class="courbe cache"></svg>
+          <h3 id="p-titre">Classement</h3>
+          <ol class="classement" id="p-classement"></ol>
+          <div class="actions-panneau">
+            <button class="bouton" id="action"></button>
+            <button class="bouton secondaire cache" id="rejouer">Nouvelle manche</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <p class="erreur" id="erreur"></p>
+  </main>
+  <script type="module" src="js/machine-animateur.mjs"></script>
+</body>
+</html>
