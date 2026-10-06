@@ -6,7 +6,7 @@
 // partie là où elle en était (même animateur, même navigateur).
 
 import { creerTransport } from "./transport.mjs";
-import { classement, genererCode, prenomsAffiches, repartition, verifierQuestions } from "./jeu.mjs";
+import { classement, genererCode, melanger, prenomsAffiches, repartition, verifierQuestions } from "./jeu.mjs";
 import { QUESTIONS, TITRE } from "./questions.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -84,11 +84,19 @@ function majJoueurs() {
 async function poserQuestion(index) {
   const q = questions[index];
   const cle = String(index);
+  // Les choix sont MÉLANGÉS à chaque question : écran et téléphones montrent le même ordre, et
+  // tout ce qui suit (réponses, bonne réponse, répartition) se compte dans cet ordre-là.
+  const ordre = melanger(q.choix.length);
   await t.ecrire(`parties/${code}/etat`, {
-    phase: "question", index, cle, total: questions.length,
-    question: { texte: q.texte, choix: q.choix, duree: q.duree || DUREE_DEFAUT, ...(q.code ? { code: q.code } : {}) },
+    phase: "question", index, cle, total: questions.length, ordre,
+    question: { texte: q.texte, choix: ordre.map((i) => q.choix[i]), duree: q.duree || DUREE_DEFAUT, ...(q.code ? { code: q.code } : {}) },
     debut: t.HORODATAGE,
   });
+}
+
+/** La bonne réponse dans l'ordre MONTRÉ (celui de la question en cours). */
+function bonneMontree(q) {
+  return Array.isArray(etat.ordre) ? etat.ordre.indexOf(q.bonne) : q.bonne;
 }
 
 let revelationEnCours = null;
@@ -104,13 +112,14 @@ async function revelerUneFois() {
   const q = questions[etat.index];
   const reponses = (await t.lire(`parties/${code}/reponses/${etat.cle}`)) || {};
   // La manche est archivée (bonne réponse, début, durée) : le classement se recalcule depuis la base.
-  await t.ecrire(`parties/${code}/manches/${etat.cle}`, { bonne: q.bonne, debut: etat.debut, dureeMs: (q.duree || DUREE_DEFAUT) * 1000 });
+  const bonne = bonneMontree(q);
+  await t.ecrire(`parties/${code}/manches/${etat.cle}`, { bonne, debut: etat.debut, dureeMs: (q.duree || DUREE_DEFAUT) * 1000 });
   const manches = await toutesLesManches();
   const c = classement(joueurs, manches);
   const rangs = {};
   for (const l of c) rangs[l.uid] = { rang: l.rang, score: l.score, gain: l.gain, juste: l.juste };
   await t.ecrire(`parties/${code}/classement`, { rangs, total: c.length, cle: etat.cle });
-  await t.maj(`parties/${code}/etat`, { phase: "revelation", bonne: q.bonne, explication: q.explication || "", repartition: repartition(reponses, q.choix.length) });
+  await t.maj(`parties/${code}/etat`, { phase: "revelation", bonne, explication: q.explication || "", repartition: repartition(reponses, q.choix.length) });
 }
 
 async function toutesLesManches() {

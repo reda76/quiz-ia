@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { points, repartition, classement, prenomsAffiches, nettoyerPrenom, genererCode, verifierQuestions } from "../js/jeu.mjs";
+import { points, repartition, classement, prenomsAffiches, nettoyerPrenom, genererCode, verifierQuestions, melanger } from "../js/jeu.mjs";
 import { QUESTIONS } from "../js/questions.mjs";
 
 describe("points", () => {
@@ -48,5 +48,18 @@ describe("saisies et questions", () => {
     assert.deepEqual(verifierQuestions(QUESTIONS), []);
     assert.equal(QUESTIONS.length, 20);
     assert.equal(QUESTIONS.filter((q) => q.code).length, 5, "cinq questions Python");
+  });
+});
+
+describe("mélange des choix", () => {
+  it("rend une permutation complète", () => {
+    for (let k = 0; k < 50; k++) assert.deepEqual([...melanger(4)].sort(), [0, 1, 2, 3]);
+    assert.deepEqual(melanger(1), [0]);
+  });
+
+  it("la bonne réponse tombe à peu près autant sur chaque lettre", () => {
+    const n = [0, 0, 0, 0];
+    for (let k = 0; k < 4000; k++) n[melanger(4).indexOf(1)]++;
+    for (const x of n) assert.ok(x > 850 && x < 1150, `répartition ${n}`);
   });
 });

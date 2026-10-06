@@ -66,6 +66,20 @@ export function nettoyerPrenom(s) {
   return p || null;
 }
 
+/**
+ * Un ordre de présentation des choix, tiré au hasard (Fisher-Yates) : `ordre[i]` est l'indice,
+ * dans la question d'origine, du choix montré en position i. Sans lui, la bonne réponse était
+ * B dans 15 questions sur 20 — repérable en trois questions.
+ */
+export function melanger(n, aleatoire = Math.random) {
+  const ordre = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(aleatoire() * (i + 1));
+    [ordre[i], ordre[j]] = [ordre[j], ordre[i]];
+  }
+  return ordre;
+}
+
 /** Code de partie à 6 chiffres. */
 export function genererCode(aleatoire = Math.random) {
   return String(Math.floor(aleatoire() * 900000) + 100000);
