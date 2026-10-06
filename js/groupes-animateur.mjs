@@ -80,10 +80,14 @@ function afficher() {
   }
 }
 
+let regroupementLance = false;
 function majPlaces() {
-  if (etat.phase !== "placement") return;
-  const n = liste().length, total = Object.keys(joueurs).length;
-  $("places").innerHTML = `<b>${n}</b> / ${total} placés`;
+  if (etat.phase !== "placement") { regroupementLance = false; return; }
+  const total = Object.keys(joueurs).length;
+  const valides = Object.entries(points).filter(([uid, p]) => joueurs[uid] && p.valide).length;
+  $("places").innerHTML = `<b>${valides}</b> / ${total} positions validées`;
+  // Dès que tout le monde a validé, les groupes se forment sans attendre.
+  if (total > 0 && valides === total && !regroupementLance) { regroupementLance = true; setTimeout(regrouper, 800); }
 }
 
 function dessinerPlacement() {

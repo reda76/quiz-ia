@@ -58,3 +58,6 @@ input.choix-select { width: 26vw; }
 .suggestions { display: flex; flex-wrap: wrap; align-items: center; gap: 1vh; }
 .suggestion { font: inherit; font-size: 1.9vh; border: 1px solid var(--ligne); background: var(--blanc); color: var(--encre); border-radius: 999px; padding: 0.6vh 1.6vh; cursor: pointer; }
 .suggestion:hover { border-color: var(--violet); color: var(--violet); }
+
+.valider { background: var(--juste); }
+.valider.fait { background: var(--blanc); color: var(--juste); border: 2px solid var(--juste); font-size: 15px; }

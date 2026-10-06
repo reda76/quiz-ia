@@ -10,7 +10,7 @@ import { dessiner } from "./graphique.mjs";
 const $ = (id) => document.getElementById(id);
 const MEMO = "machine-joueur";
 let t, code, prenom, etat = {}, courses = [], rang = null, machine = null;
-let w = 0, b = 0, enAttente = null;
+let w = 0, b = 0, enAttente = null, valide = false;
 
 function montrer(vue) { for (const v of ["rejoindre", "message", "jeu"]) $(`v-${v}`).classList.toggle("cache", v !== vue); }
 function message(grand, moyen = "") { montrer("message"); $("m-grand").textContent = grand; $("m-moyen").innerHTML = moyen; }
@@ -61,7 +61,7 @@ function suivre() {
     // changement de phase ne touche jamais la droite du joueur.
     const nouvelleManche = etat?.manche !== undefined && e?.manche !== etat.manche;
     etat = e || {};
-    if (nouvelleManche && etat.phase === "jeu") { w = 0; b = 0; envoyer(); }
+    if (nouvelleManche && etat.phase === "jeu") { w = 0; b = 0; valide = false; envoyer(); }
     afficher();
   });
 }
@@ -83,6 +83,7 @@ function afficher() {
 
 function afficherJeu() {
   montrer("jeu");
+  majValider();
   $("r-w").value = w; $("r-b").value = b;
   $("v-w").textContent = `${fr(w)} €/km`;
   $("v-b").textContent = `${fr(b)} €`;
@@ -97,17 +98,28 @@ function majScore() {
 }
 
 /** Envoi de la droite, au plus toutes les 150 ms (les curseurs bougent en continu). */
-function envoyer() {
-  if (enAttente || etat.phase !== "jeu") return;
-  enAttente = setTimeout(async () => {
+function envoyer(tout_de_suite = false) {
+  if (etat.phase !== "jeu") return;
+  const ecrire = async () => {
     enAttente = null;
-    try { await t.ecrire(`jeux/${code}/droites/${t.uid}`, { w, b }); } catch { /* manche finie : refusé, c'est normal */ }
-  }, 150);
+    try { await t.ecrire(`jeux/${code}/droites/${t.uid}`, { w, b, valide }); } catch { /* manche finie : refusé, c'est normal */ }
+  };
+  if (tout_de_suite) { clearTimeout(enAttente); return ecrire(); }
+  if (!enAttente) enAttente = setTimeout(ecrire, 150);
 }
+
+/** « Je valide » : quand tout le monde a validé, la manche s'arrête sans attendre la fin du temps. */
+function majValider() {
+  $("valider").textContent = valide ? "Droite validée ✓ (bouge un curseur pour la modifier)" : "✓ Je valide ma droite";
+  $("valider").classList.toggle("fait", valide);
+}
+$("valider").onclick = () => { if (etat.phase !== "jeu") return; valide = true; majValider(); envoyer(true); };
 
 function regler(c, v) {
   if (etat.phase !== "jeu") return;
   if (c === "w") w = borner("w", v); else b = borner("b", v);
+  valide = false;
+  majValider();
   afficherJeu();
   envoyer();
 }

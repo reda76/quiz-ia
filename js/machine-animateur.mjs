@@ -113,9 +113,12 @@ function changerDePhase() {
     const fin = (etat.debut || t.maintenant()) + etat.duree * 1000;
     const tic = () => {
       const reste = Math.max(0, Math.ceil((fin - t.maintenant()) / 1000));
-      $("p-temps").innerHTML = `${Math.floor(reste / 60)}:${String(reste % 60).padStart(2, "0")}<small>Réglez w et b sur votre téléphone</small>`;
+      // Le temps est un MAXIMUM : dès que tout le monde a validé sa droite, la manche s'arrête.
+      const presents = Object.keys(joueurs);
+      const validees = presents.filter((uid) => droites[uid]?.valide).length;
+      $("p-temps").innerHTML = `${Math.floor(reste / 60)}:${String(reste % 60).padStart(2, "0")}<small>${validees} / ${presents.length} droites validées</small>`;
       $("p-temps").classList.toggle("urgent", reste <= 10);
-      if (reste === 0) arreter();
+      if (reste === 0 || (presents.length > 0 && validees === presents.length)) arreter();
     };
     tic();
     minuteur = setInterval(tic, 250);

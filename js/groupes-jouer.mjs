@@ -6,7 +6,7 @@ import { $, echapper, brancherRejoindre } from "./commun.mjs";
 import { AXES, COULEURS } from "./groupes.mjs";
 import { dessinerNuage } from "./nuage.mjs";
 
-let t, code, prenom, etat = {}, points = {}, moi = null, resultat = null, enAttente = null, axes = AXES[0];
+let t, code, prenom, etat = {}, points = {}, moi = null, resultat = null, enAttente = null, axes = AXES[0], valide = false;
 const montrer = (v) => { for (const x of ["rejoindre", "message", "placement"]) $(`v-${x}`).classList.toggle("cache", x !== v); };
 const message = (grand, moyen = "") => { montrer("message"); $("m-grand").textContent = grand; $("m-moyen").innerHTML = moyen; };
 const fmt = (v, a) => `${String(v).replace(".", ",")}${a.unite ? ` ${a.unite}` : ""}`;
@@ -25,7 +25,7 @@ function suivre(c, p) {
   t.ecouter(`groupes/${code}/etat`, (e) => {
     const autresAxes = e?.axes && e.axes !== etat.axes;
     etat = e || {};
-    if (autresAxes) { axes = AXES.find((a) => a.id === etat.axes) || AXES[0]; moi = null; preparerCurseurs(); }
+    if (autresAxes) { axes = AXES.find((a) => a.id === etat.axes) || AXES[0]; moi = null; valide = false; preparerCurseurs(); }
     afficher();
   });
 }
@@ -44,6 +44,7 @@ function afficher() {
     if (!moi) { moi = { x: (axes.x.min + axes.x.max) / 2, y: (axes.y.min + axes.y.max) / 2 }; envoyer(); }
     $("rx").value = moi.x; $("ry").value = moi.y;
     $("vx").textContent = fmt(moi.x, axes.x); $("vy").textContent = fmt(moi.y, axes.y);
+    majValider();
     return dessiner();
   }
   if (etat.phase === "regroupement") return message("La machine regroupe…", "Regarde le grand écran : elle ne sait pas qui est qui.");
@@ -63,18 +64,29 @@ function dessiner() {
 }
 
 /** Envoi de la position, au plus toutes les 150 ms. */
-function envoyer() {
-  if (enAttente || etat.phase !== "placement") return;
-  enAttente = setTimeout(async () => {
+function envoyer(tout_de_suite = false) {
+  if (etat.phase !== "placement") return;
+  const ecrire = async () => {
     enAttente = null;
-    try { await t.ecrire(`groupes/${code}/points/${t.uid}`, { x: moi.x, y: moi.y }); } catch { /* carte fermée */ }
-  }, 150);
+    try { await t.ecrire(`groupes/${code}/points/${t.uid}`, { x: moi.x, y: moi.y, valide }); } catch { /* carte fermée */ }
+  };
+  if (tout_de_suite) { clearTimeout(enAttente); return ecrire(); }
+  if (!enAttente) enAttente = setTimeout(ecrire, 150);
 }
+
+/** « Je valide » : quand tout le monde a validé, les groupes se forment sans attendre. */
+function majValider() {
+  $("valider").textContent = valide ? "Position validée ✓ (bouge un curseur pour la modifier)" : "✓ Je valide ma position";
+  $("valider").classList.toggle("fait", valide);
+}
+$("valider").onclick = () => { if (etat.phase !== "placement" || !moi) return; valide = true; majValider(); envoyer(true); };
 
 function regler(c, v) {
   if (etat.phase !== "placement") return;
   const a = axes[c];
   moi = { ...moi, [c]: Math.round(Math.min(a.max, Math.max(a.min, Number(v))) / a.pas) * a.pas };
+  valide = false;
+  majValider();
   $(`v${c}`).textContent = fmt(moi[c], a);
   dessiner();
   envoyer();
