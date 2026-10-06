@@ -176,3 +176,40 @@ pre.code {
 .go { font-size: 3vh; font-weight: 800; color: var(--c); }
 @media (max-width: 760px) { .ecran > .choix-jeux { grid-template-columns: 1fr; } }
 .icone-jeu svg { width: 60%; height: 60%; }
+
+/* ═════════════════════════ PAGE D'ACCUEIL (index.html) ═════════════════════════ */
+body.site {
+  min-height: 100vh; display: flex; flex-direction: column;
+  background: radial-gradient(1200px 600px at 85% -10%, #e4defd 0%, transparent 60%),
+              radial-gradient(900px 500px at -10% 110%, #dff5f1 0%, transparent 55%), var(--fond);
+}
+.site-tete { display: flex; justify-content: space-between; align-items: center; padding: 22px clamp(16px, 5vw, 64px); }
+.marque { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; }
+.marque-pastille { background: var(--violet); color: var(--blanc); border-radius: 10px; padding: 4px 8px; font-size: 14px; letter-spacing: 0.04em; }
+.site-lien { color: var(--doux); text-decoration: none; font-weight: 600; font-size: 15px; }
+.site-lien:hover { color: var(--violet); }
+.site-corps {
+  flex: 1; width: 100%; max-width: 1080px; margin: 0 auto; padding: 24px clamp(16px, 5vw, 64px) 56px;
+  display: grid; grid-template-columns: 1.25fr 1fr; gap: 40px; align-items: center;
+}
+.rejoindre-carte { background: var(--blanc); border-radius: 28px; padding: clamp(24px, 4vw, 44px); box-shadow: 0 20px 60px rgba(30, 36, 89, 0.12); }
+.rejoindre-carte h1 { font-size: clamp(30px, 3.4vw, 42px); margin: 0 0 10px; line-height: 1.05; white-space: nowrap; }
+.rejoindre-carte > p { color: var(--doux); margin: 0 0 22px; font-size: 17px; }
+.rejoindre-form { display: flex; flex-direction: column; gap: 14px; }
+.code-saisie {
+  width: 100%; font: inherit; font-size: clamp(34px, 6vw, 48px); font-weight: 800; letter-spacing: 0.35em; text-align: center;
+  padding: 14px 10px 14px calc(10px + 0.35em); border: 3px solid var(--ligne); border-radius: 18px; color: var(--violet); background: var(--fond);
+  font-variant-numeric: tabular-nums;
+}
+.code-saisie::placeholder { color: #cfc9ef; }
+.code-saisie:focus { outline: none; border-color: var(--violet); background: var(--blanc); }
+.rejoindre-carte .petit-texte { color: var(--doux); font-size: 14px; margin: 22px 0 0; line-height: 1.45; }
+.jeux-vignettes { display: flex; flex-direction: column; gap: 18px; }
+.vignette { display: flex; gap: 18px; align-items: flex-start; background: rgba(255, 255, 255, 0.7); border: 1px solid var(--ligne); border-radius: 22px; padding: 22px; }
+.vignette h2 { margin: 2px 0 6px; font-size: 21px; }
+.vignette p { margin: 0; color: var(--doux); line-height: 1.45; font-size: 15px; }
+.icone-jeu.petite { width: 52px; height: 52px; border-radius: 14px; font-size: 30px; flex: none; }
+@media (max-width: 820px) {
+  .site-corps { grid-template-columns: 1fr; gap: 22px; padding-top: 8px; }
+  .site-lien { font-size: 14px; }
+}

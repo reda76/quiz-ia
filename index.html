@@ -3,26 +3,64 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quiz IA</title>
+  <meta name="theme-color" content="#6d5ae6" />
+  <title>Quiz IA · rejoindre une partie</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
-  <main class="tel">
-    <div class="carte">
-      <h1>Quiz IA</h1>
-      <p>Tu es étudiant ? Rejoins la partie avec le code affiché à l'écran.</p>
-      <a class="gros" style="display:block;text-align:center;text-decoration:none" href="jouer.html">Rejoindre une partie</a>
-    </div>
-    <div class="carte">
-      <h1>Battez la machine</h1>
-      <p>Réglez w et b pour que votre droite colle aux courses de taxi… puis regardez la machine apprendre.</p>
-      <a class="gros" style="display:block;text-align:center;text-decoration:none;background:#ff8a4c" href="machine-jouer.html">Rejoindre une partie</a>
-    </div>
-    <div class="carte">
-      <h1>Animer</h1>
-      <p>Sur le grand écran : choisis le jeu (quiz ou Battez la machine), il crée sa partie et affiche son QR code.</p>
-      <a class="gros" style="display:block;text-align:center;text-decoration:none;background:#1e2459" href="animateur.html">Ouvrir l'écran d'animation</a>
-    </div>
+<body class="site">
+  <header class="site-tete">
+    <span class="marque"><span class="marque-pastille">IA</span> Quiz IA</span>
+    <a class="site-lien" id="lien-animer" href="animateur.html">Animer une séance →</a>
+  </header>
+
+  <main class="site-corps">
+    <section class="rejoindre-carte">
+      <h1>Rejoins la partie</h1>
+      <p>Tape le code à 6 chiffres affiché sur le grand écran.</p>
+      <form id="form" class="rejoindre-form" autocomplete="off">
+        <input id="code" class="code-saisie" inputmode="numeric" pattern="[0-9]*" placeholder="000000" aria-label="Code de la partie" />
+        <button class="gros" id="entrer" type="submit" disabled>Rejoindre</button>
+      </form>
+      <p class="petit-texte">Ou scanne simplement le QR code de l'écran avec l'appareil photo de ton téléphone.</p>
+    </section>
+
+    <section class="jeux-vignettes" aria-label="Les jeux">
+      <article class="vignette c0">
+        <span class="icone-jeu petite">?</span>
+        <div>
+          <h2>Quiz</h2>
+          <p>Les questions s'affichent sur l'écran, tu réponds sur ton téléphone. Les plus rapides marquent le plus.</p>
+        </div>
+      </article>
+      <article class="vignette c2">
+        <span class="icone-jeu petite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="3" y1="20" x2="21" y2="5"/><circle cx="6" cy="15" r="1.6" fill="currentColor"/><circle cx="11" cy="13" r="1.6" fill="currentColor"/><circle cx="15" cy="8" r="1.6" fill="currentColor"/><circle cx="19" cy="9" r="1.6" fill="currentColor"/></svg></span>
+        <div>
+          <h2>Battez la machine</h2>
+          <p>Règle ta droite au plus près des courses de taxi… puis regarde la machine apprendre à faire mieux.</p>
+        </div>
+      </article>
+    </section>
   </main>
+
+  <script>
+    // Le code mène à la page commune, qui retrouve le jeu (quiz ou Battez la machine).
+    const champ = document.getElementById("code");
+    const bouton = document.getElementById("entrer");
+    const local = new URLSearchParams(location.search).has("local");
+    champ.addEventListener("input", () => {
+      champ.value = champ.value.replace(/\D/g, "").slice(0, 6);
+      bouton.disabled = champ.value.length !== 6;
+    });
+    document.getElementById("form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (champ.value.length !== 6) return;
+      const u = new URL("jouer.html", location.href);
+      u.searchParams.set("p", champ.value);
+      if (local) u.searchParams.set("local", "1");
+      location.href = u.toString();
+    });
+    if (local) document.getElementById("lien-animer").href += "?local=1";
+    if (matchMedia("(pointer: fine)").matches) champ.focus();
+  </script>
 </body>
 </html>
