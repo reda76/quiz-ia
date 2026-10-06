@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="theme-color" content="#6d5ae6" />
+  <title>Quiz IA</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="tel">
+    <div class="entete"><span id="qui"></span><span id="ou"></span></div>
+
+    <!-- REJOINDRE -->
+    <section id="v-rejoindre" class="carte cache">
+      <h1>Rejoindre le quiz</h1>
+      <p>Entre ton prénom : il s'affichera au classement.</p>
+      <form id="form">
+        <input class="champ" id="code" inputmode="numeric" autocomplete="off" placeholder="Code de la partie" maxlength="6" />
+        <input class="champ" id="prenom" autocomplete="given-name" placeholder="Ton prénom" maxlength="20" />
+        <button class="gros" id="entrer" type="submit">C'est parti</button>
+      </form>
+      <div class="erreur" id="erreur"></div>
+    </section>
+
+    <!-- ATTENTE / MESSAGES -->
+    <section id="v-message" class="centre cache">
+      <div class="grand" id="m-grand"></div>
+      <div class="moyen" id="m-moyen"></div>
+    </section>
+
+    <!-- QUESTION -->
+    <section id="v-question" class="cache" style="display:flex;flex-direction:column;gap:14px;flex:1">
+      <div class="enonce" id="q-texte"></div>
+      <div class="boutons" id="q-boutons"></div>
+    </section>
+
+    <!-- RÉSULTAT D'UNE QUESTION -->
+    <section id="v-resultat" class="centre cache">
+      <div class="verdict" id="r-verdict"></div>
+      <div class="grand" id="r-titre"></div>
+      <div class="moyen" id="r-detail"></div>
+      <div class="pastille-rang" id="r-rang"></div>
+    </section>
+  </main>
+  <script type="module" src="js/jouer.mjs"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "rules": {
+    "parties": {
+      "$code": {
+        ".validate": "$code.matches(/^[0-9]{6}$/)",
+        ".write": "auth != null && (!data.exists() || data.child('hote').val() === auth.uid)",
+
+        "hote": { ".read": "auth != null" },
+        "creeLe": { ".read": "auth != null" },
+        "etat": { ".read": "auth != null" },
+        "joueurs": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('parties/' + $code + '/hote').exists() && root.child('parties/' + $code + '/etat/phase').val() !== 'fin'",
+            ".validate": "newData.hasChildren(['prenom', 'rejointLe']) && newData.child('prenom').isString() && newData.child('prenom').val().length >= 1 && newData.child('prenom').val().length <= 20 && newData.child('rejointLe').val() === now"
+          }
+        },
+        "reponses": {
+          ".read": "auth != null",
+          "$q": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid && !data.exists() && root.child('parties/' + $code + '/joueurs/' + $uid).exists() && root.child('parties/' + $code + '/etat/phase').val() === 'question' && root.child('parties/' + $code + '/etat/cle').val() === $q",
+              ".validate": "newData.hasChildren(['choix', 't']) && newData.child('choix').isNumber() && newData.child('choix').val() >= 0 && newData.child('choix').val() <= 3 && newData.child('t').val() === now"
+            }
+          }
+        },
+        "manches": { ".read": "auth != null" },
+        "classement": { ".read": "auth != null" },
+        "questions": { ".read": "auth != null && data.parent().child('hote').val() === auth.uid" }
+      }
+    }
+  }
+}

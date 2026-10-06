@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiz IA · Animation</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+</head>
+<body>
+  <main class="ecran">
+    <div class="bandeau">
+      <span id="titre-quiz"></span>
+      <span id="etat-bandeau"></span>
+    </div>
+
+    <!-- ACCUEIL : QR code, code, prénoms qui arrivent -->
+    <section id="v-accueil" class="cache">
+      <div class="accueil">
+        <div class="qr" id="qr"></div>
+        <div class="rejoindre">
+          <h1>Scannez pour jouer</h1>
+          <div class="adresse" id="adresse"></div>
+          <div class="code" id="code"></div>
+          <div class="compte" id="compte">En attente des joueurs…</div>
+          <div class="prenoms" id="prenoms"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="bouton" id="lancer" disabled>Lancer le quiz</button>
+        <label class="bouton secondaire" for="fichier">Charger des questions (.json)</label>
+        <input type="file" id="fichier" accept="application/json" class="cache" />
+        <span class="aide" id="nb-questions"></span>
+      </div>
+    </section>
+
+    <!-- QUESTION -->
+    <section id="v-question" class="cache">
+      <h2 class="question" id="q-texte"></h2>
+      <div class="minuteur">
+        <div class="rond" id="q-temps"></div>
+        <div class="reponses-recues" id="q-recues"></div>
+      </div>
+      <div class="choix" id="q-choix"></div>
+      <div class="actions"><button class="bouton secondaire" id="reveler">Révéler la réponse</button><span class="aide">Espace ou → : étape suivante</span></div>
+    </section>
+
+    <!-- RÉVÉLATION -->
+    <section id="v-revelation" class="cache">
+      <h2 class="question" id="r-texte"></h2>
+      <div class="choix" id="r-choix"></div>
+      <div class="explication" id="r-explication"></div>
+      <div class="actions"><button class="bouton" id="vers-classement">Classement</button></div>
+    </section>
+
+    <!-- CLASSEMENT -->
+    <section id="v-classement" class="cache">
+      <h2 class="titre-ecran">Classement</h2>
+      <ol class="tableau" id="tableau"></ol>
+      <div class="actions"><button class="bouton" id="suivante">Question suivante</button></div>
+    </section>
+
+    <!-- FIN -->
+    <section id="v-fin" class="cache">
+      <h2 class="titre-ecran">Podium</h2>
+      <div class="podium" id="podium"></div>
+      <ol class="tableau" id="tableau-fin"></ol>
+    </section>
+
+    <p class="erreur" id="erreur"></p>
+  </main>
+  <script type="module" src="js/animateur.mjs"></script>
+</body>
+</html>
