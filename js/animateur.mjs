@@ -10,6 +10,8 @@ import { classement, genererCode, melanger, prenomsAffiches, repartition, verifi
 import { QUESTIONS, TITRE } from "./questions.mjs";
 
 const $ = (id) => document.getElementById(id);
+// « Changer de jeu » garde le mode (local ou en ligne).
+document.querySelectorAll(".retour-choix").forEach((a) => { a.href = `animateur.html${location.search.includes("local") ? "?local=1" : ""}`; });
 const LETTRES = ["A", "B", "C", "D"];
 const DUREE_DEFAUT = 20;
 const echapper = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);

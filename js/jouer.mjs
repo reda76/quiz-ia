@@ -43,7 +43,17 @@ $("form").onsubmit = async (e) => {
   if (!p) return ($("erreur").textContent = "Entre ton prénom.");
   $("entrer").disabled = true;
   try {
-    if (!(await t.lire(`parties/${c}/hote`))) throw new Error("Partie introuvable : vérifie le code.");
+    if (!(await t.lire(`parties/${c}/hote`))) {
+      // Un seul endroit pour rejoindre : un code de « Battez la machine » mène à son jeu.
+      if (await t.lire(`jeux/${c}/hote`)) {
+        const u = new URL("machine-jouer.html", location.href);
+        u.searchParams.set("p", c);
+        if (t.local) u.searchParams.set("local", "1");
+        sessionStorage.setItem("machine-prenom", p);
+        return location.replace(u.toString());
+      }
+      throw new Error("Partie introuvable : vérifie le code.");
+    }
     if ((await t.lire(`parties/${c}/etat/phase`)) === "fin") throw new Error("Cette partie est terminée.");
     await t.ecrire(`parties/${c}/joueurs/${t.uid}`, { prenom: p, rejointLe: t.HORODATAGE });
     code = c; prenom = p;

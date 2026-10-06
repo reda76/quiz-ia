@@ -13,7 +13,7 @@ classement. Podium à la fin. Rien à installer pour les étudiants.
 ## Essayer tout de suite (mode local)
 
 ```bash
-npm run serve            # puis ouvrir http://localhost:8090/animateur.html
+npm run serve            # puis ouvrir http://localhost:8090/animateur.html?local=1 (mode local)
 ```
 
 Ouvre ensuite l'adresse affichée sous le QR code (`jouer.html?p=…&local=1`) dans d'autres onglets
@@ -44,8 +44,10 @@ du même navigateur : chaque onglet est un joueur.
 3. Le quiz est en ligne à `https://<ton-pseudo>.github.io/quiz-ia/`.
 
 ## Le jour du cours
-1. Sur l'ordinateur relié au grand écran : `…/quiz-ia/animateur.html`.
-2. Les étudiants scannent le QR code (ou tapent le code à 6 chiffres sur `…/quiz-ia/jouer.html`).
+1. Sur l'ordinateur relié au grand écran : `…/quiz-ia/animateur.html`, puis choisir le jeu
+   (Quiz ou Battez la machine). Chaque jeu crée sa partie et son code.
+2. Les étudiants scannent le QR code, ou tapent le code à 6 chiffres sur `…/quiz-ia/jouer.html`
+   (n'importe quel jeu : la page retrouve le bon).
 3. **Lancer le quiz** quand les prénoms sont là. Ensuite, **Espace** ou **→** fait avancer :
    question → révélation → classement → question suivante → podium.
    La révélation arrive seule à la fin du temps, ou dès que tout le monde a répondu.
@@ -59,7 +61,7 @@ du même navigateur : chaque onglet est un joueur.
   ordinateur. Les questions ne sont alors jamais dans le site.
 
 ## Le jeu « Battez la machine »
-Écran d'animation : `…/quiz-ia/machine.html`. Les étudiants scannent le QR code et règlent sur
+Écran d'animation : `…/quiz-ia/animateur.html` → Battez la machine (ou directement `machine.html`). Les étudiants scannent le QR code et règlent sur
 leur téléphone **b** (prise en charge) et **w** (prix au km) pour que leur droite passe au plus
 près des courses de taxi affichées. Toutes les droites apparaissent en direct sur le grand
 écran, avec un classement à l'écart moyen en euros. À la fin du temps, **Lancer la machine** :

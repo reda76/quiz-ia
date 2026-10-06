@@ -25,6 +25,9 @@ async function demarrer() {
   for (const c of ["w", "b"]) Object.assign($(`r-${c}`), { min: BORNES[c].min, max: BORNES[c].max, step: BORNES[c].pas });
   if (memo && memo.code === code && (await t.lire(`jeux/${code}/joueurs/${t.uid}`))) { prenom = memo.prenom; return suivre(); }
   montrer("rejoindre");
+  // Arrivé depuis la page commune avec un prénom déjà saisi : on rejoint directement.
+  const prenomTransmis = sessionStorage.getItem("machine-prenom");
+  if (prenomTransmis && code) { sessionStorage.removeItem("machine-prenom"); $("prenom").value = prenomTransmis; $("form").requestSubmit(); }
 }
 
 $("form").onsubmit = async (e) => {
