@@ -222,4 +222,4 @@ function rafraichir() {
 
 // ─── Commandes ───────────────────────────────────────────────────────────────
 $("lancer").onclick = lancerManche;
-demarrer().catch((e) => { $("erreur").textContent = `Impossible de démarrer : ${e.message}`; });
+demarrer().catch((e) => { $("erreur").textContent = /PERMISSION/i.test(e.message) ? "Impossible de démarrer : les règles Firebase ne connaissent pas encore ce jeu. Publie le contenu de database.rules.json (console Firebase → Realtime Database → Règles → Publier), puis recharge." : `Impossible de démarrer : ${e.message}`; });

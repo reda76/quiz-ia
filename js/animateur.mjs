@@ -256,4 +256,4 @@ $("fichier").onchange = async (e) => {
   } catch (err) { erreur(`Fichier de questions refusé : ${err.message}`); }
 };
 
-demarrer().catch((e) => erreur(`Impossible de démarrer : ${e.message}`));
+demarrer().catch((e) => erreur(/PERMISSION/i.test(e.message) ? "Impossible de démarrer : les règles Firebase ne sont pas à jour. Publie le contenu de database.rules.json (console Firebase → Realtime Database → Règles → Publier), puis recharge." : `Impossible de démarrer : ${e.message}`));
