@@ -99,9 +99,11 @@ function afficherQuestion() {
   montrer("question");
   const q = etat.question;
   $("q-texte").textContent = q.texte;
+  $("q-code").textContent = q.code || "";
+  $("q-code").classList.toggle("cache", !q.code);
   const b = $("q-boutons");
   b.className = `boutons${q.choix.length === 2 ? " deux" : q.choix.length === 3 ? " trois" : ""}`;
-  b.innerHTML = q.choix.map((c, i) => `<button class="btn-choix c${i}" data-i="${i}"><span class="forme"></span><span>${c.replace(/</g, "&lt;")}</span></button>`).join("");
+  b.innerHTML = q.choix.map((c, i) => `<button class="btn-choix c${i}" data-i="${i}"><span class="forme"></span><span class="${/^[\[\d"']|None|erreur/i.test(c) ? "mono" : ""}">${c.replace(/</g, "&lt;")}</span></button>`).join("");
   b.querySelectorAll("button").forEach((btn) => { btn.onclick = () => repondre(Number(btn.dataset.i)); });
 }
 

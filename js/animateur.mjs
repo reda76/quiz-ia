@@ -86,7 +86,7 @@ async function poserQuestion(index) {
   const cle = String(index);
   await t.ecrire(`parties/${code}/etat`, {
     phase: "question", index, cle, total: questions.length,
-    question: { texte: q.texte, choix: q.choix, duree: q.duree || DUREE_DEFAUT },
+    question: { texte: q.texte, choix: q.choix, duree: q.duree || DUREE_DEFAUT, ...(q.code ? { code: q.code } : {}) },
     debut: t.HORODATAGE,
   });
 }
@@ -161,6 +161,7 @@ function afficherQuestion() {
   montrer("question");
   const q = etat.question;
   $("q-texte").textContent = q.texte;
+  afficherCode("q-code", q.code);
   $("q-choix").innerHTML = tuiles(q.choix);
   if (!arretReponses) arretReponses = t.ecouter(`parties/${code}/reponses/${etat.cle}`, (r) => { reponsesCourantes = r || {}; majReponsesRecues(); });
   const fin = (etat.debut || t.maintenant()) + q.duree * 1000;
@@ -172,6 +173,12 @@ function afficherQuestion() {
   };
   tic();
   minuteur = setInterval(tic, 250);
+}
+
+/** Un extrait de code sous la question (questions de programmation). */
+function afficherCode(id, code) {
+  $(id).textContent = code || "";
+  $(id).classList.toggle("cache", !code);
 }
 
 function majReponsesRecues() {
@@ -186,6 +193,7 @@ function afficherRevelation() {
   montrer("revelation");
   const q = etat.question;
   $("r-texte").textContent = q.texte;
+  afficherCode("r-code", q.code);
   $("r-choix").innerHTML = tuiles(q.choix, { nombres: etat.repartition || [], bonne: etat.bonne });
   requestAnimationFrame(() => document.querySelectorAll("#r-choix .barre").forEach((b) => { b.style.height = `${b.dataset.h}%`; }));
   $("r-explication").innerHTML = `<strong>${LETTRES[etat.bonne]} · ${echapper(q.choix[etat.bonne])}</strong><br>${echapper(etat.explication || "")}`;

@@ -1,97 +1,148 @@
 // Les questions du quiz — cours « ECE · 1er cours IA, machine learning, deep learning ».
-// Pour un autre cours : remplacer ce tableau (2 à 4 choix, `bonne` = indice du bon choix,
-// `duree` en secondes, `explication` affichée à l'écran avec la bonne réponse).
+// Pour un autre cours : remplacer ce tableau (2 à 4 choix, `bonne` = indice du bon choix à
+// partir de 0, `duree` en secondes, `explication` affichée avec la bonne réponse, `code`
+// facultatif : un extrait affiché en police à chasse fixe sous la question).
 //
-// ⚠ Ce fichier est servi avec le site : un étudiant curieux pourrait le lire. Pour un quiz
-// noté, l'écran d'animation permet aussi de charger les questions depuis un fichier local.
+// Les réponses des questions Python ont été vérifiées en exécutant le code.
 
 export const TITRE = "IA, machine learning, deep learning : le quiz";
 
 export const QUESTIONS = [
+  // ─── Le cours (15) ─────────────────────────────────────────────────────────
   {
-    texte: "Laquelle de ces situations n'utilise PAS d'IA ?",
-    choix: ["Le filtre anti-spam de votre messagerie", "Le compteur d'un taxi", "Les séries « qui pourraient vous plaire »", "Le GPS qui contourne un bouchon"],
+    texte: "Selon la définition de Tom Mitchell, un programme « apprend » si…",
+    choix: ["Il atteint 100 % de bonnes réponses", "Sa performance à une tâche s'améliore avec l'expérience", "Il imite le fonctionnement du cerveau", "Il réécrit lui-même son code"],
     bonne: 1,
-    explication: "Le compteur applique une règle écrite à la main : tant pour monter, tant par kilomètre. Aucun apprentissage.",
+    explication: "Une tâche, une mesure de performance, une expérience : si la mesure s'améliore avec l'expérience, il apprend.",
   },
   {
-    texte: "Quel problème est « inexact » : pas de recette parfaite, on accepte de se tromper ?",
-    choix: ["Trier une liste de notes", "Additionner deux prix", "Reconnaître un chat sur une photo", "Calculer une moyenne"],
-    bonne: 2,
-    explication: "Oreilles pointues ? Un renard aussi. Personne ne sait écrire la règle : c'est là que l'apprentissage brille.",
-  },
-  {
-    texte: "IA, machine learning, deep learning : quelle phrase est juste ?",
-    choix: ["Tout machine learning est du deep learning", "Tout deep learning est du machine learning", "L'IA est une partie du machine learning", "Ce sont trois domaines séparés"],
-    bonne: 1,
-    explication: "Trois cercles emboîtés : l'IA contient le machine learning, qui contient le deep learning. Tout taxi est une voiture, pas l'inverse.",
-  },
-  {
-    texte: "Prix de la course = w × distance + b. Que représente b ?",
-    choix: ["Le prix au kilomètre", "La prise en charge", "La distance", "Le pourboire"],
-    bonne: 1,
-    explication: "b, c'est ce que vous payez avant même de rouler. w, le prix au kilomètre, donne la pente de la droite.",
-  },
-  {
-    texte: "Avec w = 2 €/km et b = 3 €, combien coûte une course de 10 km ?",
-    choix: ["20 €", "23 €", "50 €", "32 €"],
-    bonne: 1,
-    explication: "2 × 10 + 3 = 23 €. Vous venez d'utiliser un modèle.",
-    duree: 25,
-  },
-  {
-    texte: "Pour une machine, « apprendre », c'est…",
-    choix: ["Mémoriser tous les exemples", "Ajuster ses réglages pour réduire l'erreur", "Recevoir les règles d'un humain", "Devenir consciente"],
-    bonne: 1,
-    explication: "Annoncé 22 €, payé 25 € : 3 € d'erreur. L'appli tourne un peu w et b dans le bon sens, des milliers de fois.",
-  },
-  {
-    texte: "On donne à la machine des milliers d'e-mails étiquetés « spam » ou « normal ». C'est de l'apprentissage…",
-    choix: ["Supervisé", "Non supervisé", "Par renforcement", "Ce n'est pas de l'apprentissage"],
+    texte: "Un système expert des années 1980, fait de règles écrites par des médecins, c'est…",
+    choix: ["De l'IA, mais pas du machine learning", "Du machine learning", "Du deep learning", "Ni de l'IA ni du machine learning"],
     bonne: 0,
-    explication: "Les étiquettes sont le corrigé : c'est du supervisé.",
+    explication: "Le grand cercle de l'IA contient aussi les systèmes à règles écrites à la main. Le machine learning, lui, apprend ses règles à partir d'exemples.",
   },
   {
-    texte: "Un taxi autonome gagne un point quand il trouve vite un client et en perd quand il tourne à vide. C'est…",
-    choix: ["Du supervisé", "Du non supervisé", "Du renforcement", "Une règle écrite à la main"],
-    bonne: 2,
-    explication: "Ni corrigé, ni groupes : des récompenses et des pénalités. C'est l'apprentissage par renforcement.",
-  },
-  {
-    texte: "Votre IA « chat ou chien » n'a vu que des chats blancs sur fond blanc. Que va-t-il se passer ?",
-    choix: ["Elle reconnaîtra tous les chats", "Elle risque de rater un chat noir ou un autre fond", "Elle deviendra plus rapide", "Rien, la quantité suffit"],
+    texte: "Prix = w × distance + b, avec w = 2 €/km et b = 3 €. Une course a coûté 19 €. Quelle distance ?",
+    choix: ["6,5 km", "8 km", "9,5 km", "11 km"],
     bonne: 1,
-    explication: "Données pas représentatives : l'IA apprend le fond et la couleur, pas le chat. Un modèle ne vaut pas mieux que ses données.",
+    explication: "19 − 3 = 16, puis 16 ÷ 2 = 8 km. On a inversé le modèle : connaissant le prix, on retrouve la distance.",
+    duree: 40,
   },
   {
-    texte: "Les ventes de glaces et les noyades augmentent ensemble. Que faut-il en conclure ?",
-    choix: ["Les glaces provoquent des noyades", "Il faut interdire les glaces", "Une cause cachée, l'été, fait monter les deux", "Les noyades font vendre des glaces"],
-    bonne: 2,
-    explication: "Corrélation n'est pas causalité. Le machine learning repère des corrélations, pas des causes.",
+    texte: "Le tarif de nuit double le prix au kilomètre mais garde la même prise en charge. Sur le graphique, la droite…",
+    choix: ["Glisse vers le haut, avec la même pente", "Devient deux fois plus pentue, avec le même point de départ", "Ne change pas", "Devient horizontale"],
+    bonne: 1,
+    explication: "w est la pente : on la double. b est la hauteur de départ : elle ne bouge pas.",
+    duree: 30,
   },
   {
-    texte: "Un filtre laisse TOUT passer. Un e-mail sur cent est un spam. Son taux de réussite ?",
-    choix: ["0 %", "50 %", "99 %", "100 %"],
+    texte: "L'appli annonce 22 €, le client paie 25 €. Pour réduire cette erreur, l'apprentissage va…",
+    choix: ["Diminuer w et b", "Augmenter légèrement w et/ou b", "Modifier la distance de la course", "Ne rien faire : l'erreur est normale"],
+    bonne: 1,
+    explication: "L'appli a visé trop bas : on tourne les boutons dans le sens qui rapproche la prédiction du prix payé, un petit pas à la fois.",
+  },
+  {
+    texte: "Prédire si une course arrivera en retard (oui ou non), c'est une tâche de…",
+    choix: ["Régression", "Classification", "Clustering", "Renforcement"],
+    bonne: 1,
+    explication: "La réponse est une catégorie (oui / non) : classification. Si c'était un nombre de minutes de retard, ce serait une régression.",
+  },
+  {
+    texte: "Un modèle de prix n'a été entraîné que sur des courses de jour, par beau temps. Son principal défaut ?",
+    choix: ["Pas assez de données", "Des données pas représentatives", "Des étiquettes fausses", "Trop de variables"],
+    bonne: 1,
+    explication: "Un soir de neige, il sera perdu : les exemples doivent ressembler aux situations réelles.",
+  },
+  {
+    texte: "Pourquoi l'outil de tri de CV d'Amazon pénalisait-il les candidatures de femmes ?",
+    choix: ["Les ingénieurs l'avaient programmé ainsi", "Il avait appris sur dix ans de candidatures surtout masculines", "Il manquait de puissance de calcul", "Il lisait mal les CV en PDF"],
+    bonne: 1,
+    explication: "Le modèle a reproduit fidèlement le passé. Si le passé est biaisé, l'apprentissage l'est aussi.",
+  },
+  {
+    texte: "Les jours où l'on vend beaucoup de parapluies, les courses de taxi coûtent plus cher. Pourquoi ?",
+    choix: ["Les parapluies font monter les prix", "Une cause commune : la pluie, et les bouchons qu'elle provoque", "Les chauffeurs vendent des parapluies", "C'est forcément une coïncidence"],
+    bonne: 1,
+    explication: "Corrélation n'est pas causalité. Le machine learning repère la corrélation ; c'est à vous de chercher la cause.",
+  },
+  {
+    texte: "Sur 1 000 e-mails, 10 sont des spams. Un filtre en bloque 20, dont 8 vrais spams. Son RAPPEL ?",
+    choix: ["8 %", "40 %", "80 %", "98 %"],
     bonne: 2,
-    explication: "99 % de réussite… et pas un seul spam attrapé : son rappel est de zéro. Le taux de réussite peut cacher un modèle inutile.",
+    explication: "Rappel = spams attrapés ÷ spams existants = 8 ÷ 10 = 80 %.",
+    duree: 45,
+  },
+  {
+    texte: "Même filtre : 20 e-mails bloqués, dont 8 vrais spams. Sa PRÉCISION ?",
+    choix: ["8 %", "40 %", "80 %", "98 %"],
+    bonne: 1,
+    explication: "Précision = vrais spams parmi les bloqués = 8 ÷ 20 = 40 %. Douze e-mails normaux ont fini dans les spams.",
+    duree: 40,
+  },
+  {
+    texte: "Erreur sur les données d'entraînement : 1 %. Erreur sur les données de test : 30 %. Diagnostic ?",
+    choix: ["Sous-apprentissage", "Surapprentissage", "Un bon modèle", "Les données de test sont trop faciles"],
+    bonne: 1,
+    explication: "Excellent sur ce qu'il a vu, mauvais sur le reste : il a appris par cœur, hasards compris. Le tailleur trop zélé.",
+  },
+  {
+    texte: "Avant sa fonction d'activation, un neurone artificiel calcule…",
+    choix: ["La moyenne de ses entrées", "Une somme pondérée de ses entrées, plus un biais", "Le maximum de ses entrées", "Une règle « si… alors… »"],
+    bonne: 1,
+    explication: "Chaque entrée × son poids w, on additionne, on ajoute b. Exactement la formule du taxi, avec plusieurs entrées.",
+  },
+  {
+    texte: "Lequel de ces éléments N'EXPLIQUE PAS l'essor du deep learning depuis 2012 ?",
+    choix: ["Beaucoup plus de données disponibles", "Les cartes graphiques", "De meilleurs algorithmes d'entraînement", "L'invention du neurone artificiel en 2012"],
+    bonne: 3,
+    explication: "Le perceptron date de 1958. Ce qui a changé : les données, les cartes graphiques et les algorithmes, réunis ensemble.",
+  },
+  {
+    texte: "ChatGPT cite parfois un livre qui n'existe pas. Pourquoi ?",
+    choix: ["Il ment volontairement", "Il prédit la suite la plus plausible, pas la plus vraie", "Il recopie une mauvaise page web", "Il manque de mémoire"],
+    bonne: 1,
+    explication: "Entraîné à deviner le mot suivant, il produit ce qui sonne juste. Plausible n'est pas vrai : vérifiez toujours.",
+  },
+
+  // ─── Python (5) : qui sait coder ? ─────────────────────────────────────────
+  {
+    texte: "Python : qu'affiche ce code ?",
+    code: "x = [1, 2, 3]\ny = x\ny.append(4)\nprint(len(x))",
+    choix: ["3", "4", "Une erreur", "None"],
+    bonne: 1,
+    explication: "y = x ne copie pas la liste : x et y désignent la même liste. Ajouter à y, c'est ajouter à x.",
+    duree: 30,
+  },
+  {
+    texte: "Python : qu'affiche ce code ?",
+    code: "print(7 // 2, 7 % 2)",
+    choix: ["3.5 1", "3 1", "3 0.5", "4 1"],
+    bonne: 1,
+    explication: "// est la division entière (3), % le reste (1).",
     duree: 25,
   },
   {
-    texte: "Un modèle est excellent sur ses données d'entraînement mais mauvais sur les données de test. C'est…",
-    choix: ["Du sous-apprentissage", "Du surapprentissage", "Un bon modèle", "Un biais de données"],
-    bonne: 1,
-    explication: "Il a appris par cœur, hasards compris : le tailleur trop zélé. Seule la note sur des données jamais vues est honnête.",
+    texte: "Python : qu'affiche ce code ?",
+    code: "def f(a, b=2):\n    return a * b\n\nprint(f(3), f(3, 3))",
+    choix: ["6 9", "5 6", "6 6", "Une erreur"],
+    bonne: 0,
+    explication: "b vaut 2 par défaut : f(3) = 6. Si on le donne, il remplace la valeur par défaut : f(3, 3) = 9.",
+    duree: 30,
   },
   {
-    texte: "« Deep » dans deep learning veut dire…",
-    choix: ["Que le modèle est intelligent", "Que le modèle est mystérieux", "Qu'il y a beaucoup de couches de neurones", "Qu'il comprend en profondeur"],
+    texte: "Python : qu'affiche ce code ?",
+    code: "print([n * n for n in range(4) if n % 2 == 0])",
+    choix: ["[0, 1, 4, 9]", "[4, 16]", "[0, 4]", "[1, 9]"],
     bonne: 2,
-    explication: "Profond = beaucoup de couches empilées. Ni intelligent, ni mystérieux.",
+    explication: "range(4) donne 0, 1, 2, 3 ; on garde les pairs (0 et 2) et on les met au carré : [0, 4].",
+    duree: 35,
   },
   {
-    texte: "ChatGPT, au fond, est entraîné à…",
-    choix: ["Chercher la réponse sur Internet", "Deviner le mot suivant", "Comprendre comme un humain", "Recopier des livres"],
+    texte: "Python : qu'affiche ce code ?",
+    code: "notes = {\"Léa\": 15, \"Tom\": 12}\nnotes[\"Inès\"] = 17\nprint(max(notes, key=notes.get))",
+    choix: ["17", "Inès", "Tom", "Léa"],
     bonne: 1,
-    explication: "Un immense réseau entraîné à prédire le mot suivant. Il peut donc se tromper avec aplomb : vérifiez toujours.",
+    explication: "max parcourt les CLÉS du dictionnaire et les compare selon notes.get, donc selon leur note : Inès (17).",
+    duree: 35,
   },
 ];

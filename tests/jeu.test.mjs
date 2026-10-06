@@ -46,6 +46,7 @@ describe("saisies et questions", () => {
 
   it("les questions du cours sont valides", () => {
     assert.deepEqual(verifierQuestions(QUESTIONS), []);
-    assert.ok(QUESTIONS.length >= 10);
+    assert.equal(QUESTIONS.length, 20);
+    assert.equal(QUESTIONS.filter((q) => q.code).length, 5, "cinq questions Python");
   });
 });
