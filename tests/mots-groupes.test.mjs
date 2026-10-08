@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { nettoyerMot, distribution, tirer, ajouter, FIN } from "../js/mots.mjs";
+import { nettoyerMot, distribution, tirer, ajouter, suiteDuTour, FIN } from "../js/mots.mjs";
 import { kMoyennes, normaliser, portraits, AXES, affecter } from "../js/groupes.mjs";
 import { aleatoire } from "../js/machine.mjs";
 
@@ -67,4 +67,16 @@ describe("qui se ressemble s'assemble", () => {
     assert.deepEqual(normaliser({ x: axes.x.min, y: axes.y.max }, axes), { x: 0, y: 1 });
     assert.deepEqual(affecter([{ x: 0, y: 0 }, { x: 1, y: 1 }], [{ x: 0.9, y: 0.9 }, { x: 0.1, y: 0 }]), [1, 0]);
   });
+});
+
+describe("suiteDuTour", () => {
+  it("personne n'a proposé : on rejoue le mot, la phrase ne finit pas", () => {
+    assert.equal(suiteDuTour(null, 3, 25), "rejouer");
+    assert.equal(ajouter("Le chat", null), "Le chat");
+  });
+  it("« ⏹ » tiré, ou phrase trop longue : fin", () => {
+    assert.equal(suiteDuTour({ mot: FIN }, 3, 25), "fin");
+    assert.equal(suiteDuTour({ mot: "est" }, 25, 25), "fin");
+  });
+  it("sinon : mot suivant", () => assert.equal(suiteDuTour({ mot: "est" }, 3, 25), "suivant"));
 });

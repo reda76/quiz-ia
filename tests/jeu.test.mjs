@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { points, repartition, classement, prenomsAffiches, nettoyerPrenom, genererCode, verifierQuestions, melanger } from "../js/jeu.mjs";
+import { points, repartition, classement, prenomsAffiches, nettoyerPrenom, genererCode, verifierQuestions, melanger, joueursActifs, decompte } from "../js/jeu.mjs";
+import { connecterAnonyme } from "../js/transport.mjs";
 import { QUESTIONS } from "../js/questions.mjs";
 
 describe("points", () => {
@@ -61,5 +62,41 @@ describe("mélange des choix", () => {
     const n = [0, 0, 0, 0];
     for (let k = 0; k < 4000; k++) n[melanger(4).indexOf(1)]++;
     for (const x of n) assert.ok(x > 850 && x < 1150, `répartition ${n}`);
+  });
+});
+
+describe("joueursActifs / decompte", () => {
+  const joueurs = { a: { prenom: "A" }, b: { prenom: "B" }, c: { prenom: "C" } };
+  it("sans marque de présence : tous les inscrits comptent (règles pas publiées)", () => {
+    assert.deepEqual(joueursActifs(joueurs, null).sort(), ["a", "b", "c"]);
+  });
+  it("seuls les connectés comptent ; une réponse d'un parti ne fait pas croire que tout le monde a répondu", () => {
+    const actifs = joueursActifs(joueurs, { a: true, b: true });
+    assert.deepEqual(actifs.sort(), ["a", "b"]);
+    assert.deepEqual(decompte(actifs, { a: { choix: 1 }, c: { choix: 0 } }), { faits: 1, total: 2 });
+  });
+});
+
+describe("nettoyerPrenom", () => {
+  it("majuscule initiale, espaces repliés", () => {
+    assert.equal(nettoyerPrenom("  inès  "), "Inès");
+    assert.equal(nettoyerPrenom("jean  marc"), "Jean marc");
+    assert.equal(nettoyerPrenom("   "), null);
+  });
+});
+
+describe("connecterAnonyme", () => {
+  const sansAttente = { attente: async () => {} };
+  it("réessaie après un refus en rafale, puis réussit", async () => {
+    let n = 0;
+    const r = await connecterAnonyme(async () => { if (++n < 3) throw Object.assign(new Error("x"), { code: "auth/too-many-requests" }); return "ok"; }, sansAttente);
+    assert.equal(r, "ok"); assert.equal(n, 3);
+  });
+  it("au-delà des essais : un message qui dit quoi faire", async () => {
+    await assert.rejects(connecterAnonyme(async () => { throw Object.assign(new Error("x"), { code: "auth/too-many-requests" }); }, sansAttente), /données mobiles/);
+  });
+  it("une autre erreur n'est pas réessayée", async () => {
+    let n = 0;
+    await assert.rejects(connecterAnonyme(async () => { n++; throw new Error("réseau"); }, sansAttente), /réseau/); assert.equal(n, 1);
   });
 });

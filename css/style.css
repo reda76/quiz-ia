@@ -42,6 +42,10 @@ button { font: inherit; cursor: pointer; }
 .ecran > section { flex: 1; display: flex; flex-direction: column; gap: 3vh; }
 .bandeau { display: flex; justify-content: space-between; align-items: center; font-size: 2.2vh; color: var(--doux); }
 .bandeau strong { color: var(--encre); }
+.bandeau-droite { display: flex; align-items: center; gap: 2vh; }
+.nouvelle-partie { white-space: nowrap; font: inherit; font-size: 1.9vh; font-weight: 700; color: var(--doux); background: none; border: 1px solid currentColor; border-radius: 999px; padding: 0.5vh 1.6vh; cursor: pointer; opacity: 0.8; }
+.nouvelle-partie:hover { color: var(--violet); opacity: 1; }
+.nouvelle-partie.armee { color: #fff; background: var(--violet); border-color: var(--violet); opacity: 1; }
 .bouton {
   border: none; border-radius: 999px; padding: 1.4vh 3vh; font-size: 2.4vh; font-weight: 700;
   background: var(--violet); color: var(--blanc); box-shadow: 0 6px 0 #4b3bb8;
@@ -73,7 +77,7 @@ pre.code {
   font-family: "JetBrains Mono", "Fira Code", ui-monospace, Menlo, Consolas, monospace;
   font-size: 3.4vh; line-height: 1.45; padding: 2vh 3vh; white-space: pre; overflow-x: auto; max-width: 90vw;
 }
-.tel pre.code { font-size: 14px; padding: 12px 14px; max-width: 100%; margin: 0; }
+.tel pre.code { font-size: 13px; padding: 12px 14px; max-width: 100%; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; } /* tout le code visible, même sur un petit téléphone */
 .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; }
 
 /* Question */
@@ -126,9 +130,12 @@ pre.code {
   width: 100%; border-radius: var(--rayon) var(--rayon) 0 0; display: grid; place-items: start center;
   padding-top: 2vh; font-size: 8vh; font-weight: 800; color: var(--blanc);
 }
-.marche.p1 .socle { height: 36vh; background: var(--violet); }
-.marche.p2 .socle { height: 26vh; background: var(--turquoise); }
-.marche.p3 .socle { height: 18vh; background: var(--orange); }
+.marche.p1 .socle { height: 26vh; background: var(--violet); }
+.marche.p2 .socle { height: 19vh; background: var(--turquoise); }
+.marche.p3 .socle { height: 13vh; background: var(--orange); }
+/* 4e à 10e : sur deux colonnes compactes, pour que le podium tienne en entier à l'écran */
+#tableau-fin { display: grid; grid-template-columns: 1fr 1fr; gap: 1vh 2vw; width: min(1300px, 100%); }
+#tableau-fin li { padding: 0.9vh 2.4vh; font-size: 2.6vh; }
 .marche.p1 { order: 2; } .marche.p2 { order: 1; } .marche.p3 { order: 3; }
 
 /* ═════════════════════════ TÉLÉPHONE DES JOUEURS ═════════════════════════ */
@@ -216,3 +223,25 @@ body.site {
   .site-corps { grid-template-columns: 1fr; gap: 22px; padding-top: 8px; }
   .site-lien { font-size: 14px; }
 }
+
+/* QR de rappel (hors accueil) : une colonne réservée à droite, rien n'est jamais recouvert. */
+.qr-rappel { display: none; }
+body.avec-qr-rappel .ecran { padding-right: calc(4vw + 19vh); }
+body.avec-qr-rappel .ecran > .bandeau { margin-right: -19vh; } /* le QR est en bas : le bandeau garde toute la largeur */
+body.avec-qr-rappel .qr-rappel { display: flex; flex-direction: column; align-items: center; gap: 1vh; position: fixed; right: 2vw; bottom: 3vh; width: 17vh; padding: 1.2vh; background: #fff; border-radius: 1.6vh; box-shadow: 0 0.6vh 2.4vh rgba(30, 36, 89, 0.12); z-index: 5; }
+.qr-rappel-img { width: 100%; aspect-ratio: 1; }
+.qr-rappel-img svg { width: 100%; height: 100%; display: block; }
+.qr-rappel-texte { text-align: center; font-size: 1.7vh; line-height: 1.3; color: var(--doux); }
+.qr-rappel-texte b { font-size: 2.6vh; letter-spacing: 0.15em; color: var(--encre); }
+
+/* ─── L'écran de la SALLE (animateur.html) : un QR pour la séance, le choix des jeux ─── */
+.ecran > .salle { flex: 1; display: grid; flex-direction: initial; grid-template-columns: minmax(26vw, 30vw) 1fr; gap: 3vw; align-items: stretch; }
+.salle-qr { display: flex; flex-direction: column; align-items: center; gap: 1.2vh; background: var(--blanc); border-radius: var(--rayon); padding: 3vh 2vw; box-shadow: 0 4px 0 var(--ligne); }
+.salle-qr .qr { width: min(24vw, 40vh); aspect-ratio: 1; }
+.salle-qr .qr svg { width: 100%; height: 100%; display: block; }
+.salle-qr .adresse { font-size: 1.8vh; color: var(--doux); text-align: center; word-break: break-all; }
+.salle-qr .code { font-size: 7vh; font-weight: 800; letter-spacing: 0.08em; color: var(--violet); }
+.salle-qr .compte { font-size: 2.4vh; font-weight: 700; }
+.salle-qr .prenoms { justify-content: center; max-height: 30vh; overflow: auto; }
+.salle .choix-jeux { display: grid; grid-template-columns: 1fr 1fr; gap: 2.4vh 2vw; align-items: stretch; }
+@media (max-width: 760px) { .ecran > .salle { grid-template-columns: 1fr; } .salle .choix-jeux { grid-template-columns: 1fr; } }

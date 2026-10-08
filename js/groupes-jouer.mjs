@@ -6,7 +6,7 @@ import { $, echapper, brancherRejoindre } from "./commun.mjs";
 import { AXES, COULEURS } from "./groupes.mjs";
 import { dessinerNuage } from "./nuage.mjs";
 
-let t, code, prenom, etat = {}, points = {}, moi = null, resultat = null, enAttente = null, axes = AXES[0], valide = false;
+let t, code, prenom, etat = {}, points = {}, pointsLus = false, moi = null, resultat = null, enAttente = null, axes = AXES[0], valide = false;
 const montrer = (v) => { for (const x of ["rejoindre", "message", "placement"]) $(`v-${x}`).classList.toggle("cache", x !== v); };
 const message = (grand, moyen = "") => { montrer("message"); $("m-grand").textContent = grand; $("m-moyen").innerHTML = moyen; };
 const fmt = (v, a) => `${String(v).replace(".", ",")}${a.unite ? ` ${a.unite}` : ""}`;
@@ -20,12 +20,24 @@ function suivre(c, p) {
   code = c; prenom = p;
   $("qui").innerHTML = `<strong>${echapper(prenom)}</strong>`;
   $("ou").textContent = `partie ${code}`;
-  t.ecouter(`groupes/${code}/points`, (x) => { points = x || {}; if (points[t.uid] && !enAttente) moi = points[t.uid]; if (etat.phase === "placement") dessiner(); });
+  t.ecouter(`groupes/${code}/points`, (x) => {
+    const premiereLecture = !pointsLus;
+    points = x || {}; pointsLus = true;
+    if (points[t.uid] && !enAttente) { moi = { x: points[t.uid].x, y: points[t.uid].y }; if (premiereLecture) valide = !!points[t.uid].valide; }
+    if (etat.phase === "placement") { if (premiereLecture) afficher(); else dessiner(); }
+  });
   t.ecouter(`groupes/${code}/resultat`, (r) => { resultat = r; afficher(); });
   t.ecouter(`groupes/${code}/etat`, (e) => {
+    // Premier état reçu (arrivée, rechargement) : on règle les curseurs SANS effacer le point
+    // déjà placé ; seule une NOUVELLE question (autres axes) repart du centre.
+    const premier = etat.axes === undefined;
     const autresAxes = e?.axes && e.axes !== etat.axes;
     etat = e || {};
-    if (autresAxes) { axes = AXES.find((a) => a.id === etat.axes) || AXES[0]; moi = null; valide = false; preparerCurseurs(); }
+    if (autresAxes) {
+      axes = AXES.find((a) => a.id === etat.axes) || AXES[0];
+      preparerCurseurs();
+      if (!premier) { moi = null; valide = false; }
+    }
     afficher();
   });
 }
@@ -40,7 +52,11 @@ function preparerCurseurs() {
 function afficher() {
   if (!etat.phase || etat.phase === "attente") return message(`Bienvenue ${prenom} !`, "Regarde le grand écran : la carte va s'ouvrir.");
   if (etat.phase === "placement") {
+    // Tant que la position enregistrée n'est pas lue, on n'écrit rien (sinon le centre l'écraserait).
+    if (!pointsLus) return message("Un instant…", "");
     montrer("placement");
+    const enregistre = points[t.uid];
+    if (!moi && enregistre) { moi = { x: enregistre.x, y: enregistre.y }; valide = !!enregistre.valide; }
     if (!moi) { moi = { x: (axes.x.min + axes.x.max) / 2, y: (axes.y.min + axes.y.max) / 2 }; envoyer(); }
     $("rx").value = moi.x; $("ry").value = moi.y;
     $("vx").textContent = fmt(moi.x, axes.x); $("vy").textContent = fmt(moi.y, axes.y);

@@ -44,14 +44,35 @@ du même navigateur : chaque onglet est un joueur.
 3. Le quiz est en ligne à `https://<ton-pseudo>.github.io/quiz-ia/`.
 
 ## Le jour du cours
-1. Sur l'ordinateur relié au grand écran : `…/quiz-ia/animateur.html`, puis choisir le jeu
-   (Quiz ou Battez la machine). Chaque jeu crée sa partie et son code.
-2. Les étudiants scannent le QR code, ou tapent le code à 6 chiffres sur `…/quiz-ia/jouer.html`
-   (n'importe quel jeu : la page retrouve le bon).
-3. **Lancer le quiz** quand les prénoms sont là. Ensuite, **Espace** ou **→** fait avancer :
-   question → révélation → classement → question suivante → podium.
-   La révélation arrive seule à la fin du temps, ou dès que tout le monde a répondu.
-4. Recharger l'écran d'animation par erreur ne perd rien : la partie reprend.
+1. Sur l'ordinateur relié au grand écran : `…/quiz-ia/animateur.html`. C'est **la salle** : un seul
+   QR code et un seul code pour toute la séance, et les prénoms qui arrivent.
+2. Les étudiants scannent ce QR **une fois** et entrent leur prénom (ou tapent le code de la salle
+   sur `…/quiz-ia/jouer.html`).
+3. Tu cliques sur un jeu : son écran s'ouvre et **tous les téléphones y basculent tout seuls**,
+   sans ressaisir leur prénom. **← Changer de jeu** te ramène à la salle : les téléphones attendent
+   le jeu suivant. Un retardataire qui scanne le QR arrive directement dans le jeu en cours.
+4. Dans chaque jeu, le QR code et le code affichés sont ceux de la salle (dans un coin, hors de
+   l'accueil, pour qui a perdu le fil). Recharger un écran ne perd rien : la partie reprend.
+5. **↺ Nouvelle partie** (deux clics) recommence le jeu en cours avec un nouveau code : les téléphones
+   suivent seuls. **↺ Nouvelle salle**, sur l'écran de la salle, repart de zéro (nouveau QR).
+6. Quiz : **Espace** ou **→** fait avancer ; la révélation arrive à la fin du temps, ou dès que tous
+   les téléphones CONNECTÉS ont répondu (un étudiant parti ne bloque plus personne).
+
+Chaque jeu se lance aussi seul, hors salle (`quiz.html`, `machine.html`…) : il a alors son propre
+QR code, comme avant.
+
+## Avant la séance (5 minutes, une fois)
+1. **Republier les règles** : copier tout `database.rules.json` dans la console Firebase →
+   Realtime Database → Règles → Publier. Elles ajoutent la **présence** : un téléphone éteint ou
+   parti ne bloque plus le « tout le monde a répondu ». Sans cette étape, tout marche quand même :
+   chaque question attend seulement son temps maximum dès qu'un étudiant est parti.
+2. **Quota de connexions** : Firebase limite à **100 nouveaux comptes par heure et par adresse IP**.
+   Toute la salle sur le Wi-Fi de l'école partage une IP. Une classe de 30 à 40 étudiants passe
+   largement (un compte par téléphone, gardé pour les 4 jeux), mais des onglets privés rechargés en
+   boucle peuvent l'atteindre. Par sécurité : console Firebase → Authentication → Paramètres →
+   limites de création de comptes, **programmer une hausse temporaire** le jour du cours. Si un
+   téléphone affiche « Trop de connexions depuis ce réseau », l'étudiant passe en 4G/5G.
+3. Ouvrir chaque jeu une fois sur l'ordinateur du vidéoprojecteur pour vérifier l'affichage.
 
 ## Changer les questions
 - Pour le site : modifier `js/questions.mjs` (2 à 4 choix, `bonne` = indice de la bonne
@@ -62,12 +83,12 @@ du même navigateur : chaque onglet est un joueur.
 
 ## Le jeu « Battez la machine »
 Écran d'animation : `…/quiz-ia/animateur.html` → Battez la machine (ou directement `machine.html`). Les étudiants scannent le QR code et règlent sur
-leur téléphone **b** (prise en charge) et **w** (prix au km) pour que leur droite passe au plus
-près des courses de taxi affichées. Toutes les droites apparaissent en direct sur le grand
-écran, avec un classement à l'écart moyen en euros. À la fin du temps, **Lancer la machine** :
+leur téléphone **b** (litres vendus même par 0 °C) et **w** (litres en plus par degré) pour que
+leur droite « ventes = w × température + b » passe au plus près des journées d'un glacier. Toutes les droites apparaissent en direct sur le grand
+écran, avec un classement à l'écart moyen en litres. À la fin du temps, **Lancer la machine** :
 elle part de w = 0 et b = 0 et réduit l'erreur pas à pas (descente de gradient), sous les yeux
-de la salle. Puis le classement final (machine comprise) et le vrai tarif. **Nouvelle manche**
-tire d'autres courses.
+de la salle. Puis le classement final (machine comprise) et le vrai rythme de ventes. **Nouvelle manche**
+tire d'autres journées.
 
 Les jeux utilisent les parties `jeux`, `mots` et `groupes` des règles de `database.rules.json` : **après une mise à jour du
 dépôt, recoller les règles** dans la console Firebase (Realtime Database → Règles → Publier).
@@ -78,6 +99,8 @@ chaque étudiant propose le mot suivant (un seul mot, ou « ⏹ finir la phrase 
 deviennent des probabilités en direct ; on tire le mot (modèle **créatif** : au hasard selon les
 probabilités, ou **prudent** : le plus probable) et la phrase s'allonge. Morale à la fin : prédire
 le mot suivant, sans vérifier, c'est ce que fait ChatGPT (cours 6.4).
+Si personne ne propose de mot avant la fin du compte à rebours, rien n'est ajouté : le même mot
+est rejoué avec un nouveau compte à rebours (la phrase ne se termine que sur « ⏹ » ou la limite de mots).
 
 ## « Qui se ressemble s'assemble »
 Écran : `animateur.html` → Qui se ressemble s'assemble. Chaque étudiant se place (anonymement) sur

@@ -4,6 +4,8 @@
 
 import { creerTransport } from "./transport.mjs";
 import { nettoyerPrenom } from "./jeu.mjs";
+import { PRENOM_TRANSMIS, garderPrenom, prenomGarde, suivreLaSalle } from "./commun.mjs";
+import { adresseDeLaSalle } from "./salle.mjs";
 
 const $ = (id) => document.getElementById(id);
 const LETTRES = ["A", "B", "C", "D"];
@@ -26,11 +28,18 @@ async function demarrer() {
   $("code").value = code;
   if (code) $("code").classList.add("cache");
   // Rechargement en cours de partie : on reprend sans redemander le prénom.
-  if (memo && memo.code === code && (await t.lire(`parties/${code}/joueurs/${t.uid}`))) {
-    prenom = memo.prenom;
+  // Déjà inscrit (rechargement, onglet refermé puis QR rescanné) : on reprend sa place.
+  const place = code ? await t.lire(`parties/${code}/joueurs/${t.uid}`) : null;
+  if (place) {
+    prenom = place.prenom;
+    sessionStorage.setItem(MEMO, JSON.stringify({ code, prenom }));
     return suivre();
   }
   montrer("rejoindre");
+  $("prenom").value = prenomGarde();
+  // Arrivé depuis la salle (ou la page commune) avec un prénom : on rejoint directement.
+  const transmis = sessionStorage.getItem(PRENOM_TRANSMIS);
+  if (transmis && code) { sessionStorage.removeItem(PRENOM_TRANSMIS); $("prenom").value = transmis; return $("form").requestSubmit(); }
   setTimeout(() => $(code ? "prenom" : "code").focus(), 50);
 }
 
@@ -43,6 +52,8 @@ $("form").onsubmit = async (e) => {
   if (!p) return ($("erreur").textContent = "Entre ton prénom.");
   $("entrer").disabled = true;
   try {
+    // Le code d'une SALLE : on y entre, elle mène au jeu en cours.
+    if (await t.lire(`salles/${c}/hote`)) { garderPrenom(p); return location.replace(adresseDeLaSalle(location.href, c, t.local)); }
     if (!(await t.lire(`parties/${c}/hote`))) {
       // Un seul endroit pour rejoindre : le code d'un autre jeu mène à ce jeu, prénom compris.
       for (const [racine, page] of [["jeux", "machine-jouer.html"], ["mots", "mots-jouer.html"], ["groupes", "groupes-jouer.html"]]) {
@@ -56,9 +67,10 @@ $("form").onsubmit = async (e) => {
       }
       throw new Error("Partie introuvable : vérifie le code.");
     }
-    if ((await t.lire(`parties/${c}/etat/phase`)) === "fin") throw new Error("Cette partie est terminée.");
-    await t.ecrire(`parties/${c}/joueurs/${t.uid}`, { prenom: p, rejointLe: t.HORODATAGE });
-    code = c; prenom = p;
+    const place = await t.lire(`parties/${c}/joueurs/${t.uid}`);
+    if (!place && (await t.lire(`parties/${c}/etat/phase`)) === "fin") throw new Error("Cette partie est terminée.");
+    if (!place) await t.ecrire(`parties/${c}/joueurs/${t.uid}`, { prenom: p, rejointLe: t.HORODATAGE });
+    code = c; prenom = place?.prenom || p;
     sessionStorage.setItem(MEMO, JSON.stringify({ code, prenom }));
     suivre();
   } catch (err) {
@@ -68,6 +80,9 @@ $("form").onsubmit = async (e) => {
 };
 
 function suivre() {
+  t.presence(`parties/${code}/presents/${t.uid}`);
+  garderPrenom(prenom);
+  suivreLaSalle(t, "quiz", code);
   $("qui").innerHTML = `<strong>${prenom.replace(/</g, "&lt;")}</strong>`;
   $("ou").textContent = `partie ${code}`;
   arretRang = t.ecouter(`parties/${code}/classement`, (c) => { monRang = c ? { ...(c.rangs?.[t.uid] || {}), total: c.total, cle: c.cle } : null; afficher(); });

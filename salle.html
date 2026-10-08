@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="theme-color" content="#6d5ae6" />
+  <title>La salle · jeux IA</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main class="tel">
+    <div class="entete"><span id="qui"></span><span id="ou"></span></div>
+    <section id="v-rejoindre" class="carte cache">
+      <h1>Rejoindre la salle</h1>
+      <p>Entre ton prénom une seule fois : ton téléphone suivra tous les jeux de la séance.</p>
+      <form id="form">
+        <input class="champ" id="code" inputmode="numeric" autocomplete="off" placeholder="Code de la salle" maxlength="6" />
+        <input class="champ" id="prenom" autocomplete="given-name" placeholder="Ton prénom" maxlength="20" />
+        <button class="gros" id="entrer" type="submit">C'est parti</button>
+      </form>
+      <div class="erreur" id="erreur"></div>
+    </section>
+    <section id="v-message" class="centre cache">
+      <div class="grand" id="m-grand"></div>
+      <div class="moyen" id="m-moyen"></div>
+    </section>
+  </main>
+  <script type="module" src="js/salle-jouer.mjs"></script>
+</body>
+</html>

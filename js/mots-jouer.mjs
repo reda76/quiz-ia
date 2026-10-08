@@ -50,15 +50,18 @@ function afficher() {
   if (etat.phase === "fin") return message("La phrase de la salle", `<span class="phrase-finale">${echapper(etat.phrase)}.</span>`);
 }
 
+/** Rend vrai si la proposition est partie (le champ peut alors être vidé). */
 async function envoyer(brut) {
   const mot = nettoyerMot(brut);
-  if (!mot || etat.phase !== "saisie" || monMot) return;
+  // Un emoji ou de la ponctuation seule ne fait pas un mot : on le DIT, au lieu de vider le champ en silence.
+  $("s-erreur").textContent = !mot && String(brut).trim() ? "Écris un mot avec des lettres (pas seulement un emoji)." : "";
+  if (!mot || etat.phase !== "saisie" || monMot) return false;
   monMot = mot;
   afficher();
   try { await t.ecrire(`mots/${code}/propositions/${etat.cle}/${t.uid}`, { mot, t: t.HORODATAGE }); }
   catch { message("Trop tard…", "Le tour était déjà fermé."); }
 }
 
-$("f-mot").onsubmit = (e) => { e.preventDefault(); envoyer($("mot").value); $("mot").value = ""; };
+$("f-mot").onsubmit = (e) => { e.preventDefault(); const brut = $("mot").value; envoyer(brut).then((parti) => { if (parti !== false) $("mot").value = ""; }); };
 $("fin-phrase").onclick = () => envoyer(FIN);
 demarrer().catch((e) => message("Connexion impossible", e.message));

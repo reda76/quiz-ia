@@ -3,16 +3,18 @@
 // probabilités, ou le plus probable) et allonge la phrase, jusqu'à ce que la salle la finisse.
 
 import { creerTransport } from "./transport.mjs";
-import { $, echapper, afficherAccueil, majPrenoms, partieAnimateur } from "./commun.mjs";
-import { DEBUTS, FIN, distribution, tirer, ajouter } from "./mots.mjs";
+import { $, echapper, afficherAccueil, majPrenoms, partieAnimateur, brancherNouvellePartie, annoncerALaSalle, codePourLesJoueurs } from "./commun.mjs";
+import { DEBUTS, FIN, distribution, tirer, ajouter, suiteDuTour } from "./mots.mjs";
+import { decompte, joueursActifs } from "./jeu.mjs";
 
 const TOURS_MAX = 25;
-let t, code, etat = { phase: "attente" }, joueurs = {}, propositions = {}, arretProps = null, minuteur = null, tirageEnCours = null;
+let t, code, etat = { phase: "attente" }, joueurs = {}, presents = {}, propositions = {}, arretProps = null, minuteur = null, tirageEnCours = null;
 const chemin = (s = "") => `mots/${code}${s ? `/${s}` : ""}`;
 const montrer = (v) => { for (const x of ["accueil", "jeu"]) $(`v-${x}`).classList.toggle("cache", x !== v); };
 const pct = (p) => `${Math.round(p * 100)} %`;
 
 async function demarrer() {
+  brancherNouvellePartie("mots-code");
   t = await creerTransport();
   $("mode-local").textContent = t.local ? " · mode local" : "";
   // Le début est libre ; les suggestions le remplissent d'un clic.
@@ -20,8 +22,10 @@ async function demarrer() {
   $("suggestions").innerHTML = DEBUTS.map((d, i) => `<button type="button" class="suggestion" data-i="${i}">${echapper(d)}…</button>`).join("");
   document.querySelectorAll(".suggestion").forEach((b) => { b.onclick = () => { $("debut").value = DEBUTS[b.dataset.i]; $("debut").focus(); }; });
   code = await partieAnimateur({ t, racine: "mots", memo: "mots-code", creer: async () => ({ etat: { phase: "attente" } }) });
+  await annoncerALaSalle(t, "mots", code);
   afficherAccueil("mots-jouer.html", code, t.local);
   t.ecouter(chemin("joueurs"), (j) => { joueurs = j || {}; majPrenoms(joueurs); majRecues(); });
+  t.ecouter(chemin("presents"), (p) => { presents = p || {}; majRecues(); });
   t.ecouter(chemin("etat"), (e) => { etat = e || { phase: "attente" }; afficher(); });
 }
 
@@ -48,10 +52,14 @@ function fermerTour() {
 }
 
 async function tourSuivant() {
-  const fini = !etat.choisi || etat.choisi.mot === FIN || etat.tour >= TOURS_MAX;
+  const suite = suiteDuTour(etat.choisi, etat.tour, TOURS_MAX);
   const phrase = ajouter(etat.phrase, etat.choisi?.mot);
-  if (fini) return t.maj(chemin("etat"), { phase: "fin", phrase });
-  await t.ecrire(chemin("etat"), { ...etat, phase: "saisie", tour: etat.tour + 1, cle: String(etat.tour + 1), phrase, debut: t.HORODATAGE, dist: null, choisi: null });
+  if (suite === "fin") return t.maj(chemin("etat"), { phase: "fin", phrase });
+  // Rejouer = même mot, nouveau compte à rebours ; la clé change pour que les téléphones
+  // repartent d'une saisie vierge.
+  const tour = suite === "rejouer" ? etat.tour : etat.tour + 1;
+  const cle = suite === "rejouer" ? `${tour}-${Date.now().toString(36)}` : String(tour);
+  await t.ecrire(chemin("etat"), { ...etat, phase: "saisie", tour, cle, phrase, debut: t.HORODATAGE, dist: null, choisi: null });
 }
 
 async function finir() {
@@ -69,7 +77,7 @@ function etapeSuivante() {
 function afficher() {
   clearInterval(minuteur);
   if (arretProps && etat.phase !== "saisie") { arretProps(); arretProps = null; }
-  $("etat-bandeau").innerHTML = `${etat.tour ? `mot ${etat.tour} · ` : ""}code <strong>${code}</strong>`;
+  $("etat-bandeau").innerHTML = `${etat.tour ? `mot ${etat.tour} · ` : ""}code <strong>${codePourLesJoueurs(code)}</strong>`;
   if (etat.phase === "attente") return montrer("accueil");
   montrer("jeu");
   $("morale").classList.add("cache");
@@ -112,7 +120,7 @@ function afficher() {
 
 function majRecues() {
   if (etat.phase !== "saisie") return;
-  const n = Object.keys(propositions).length, total = Object.keys(joueurs).length;
+  const { faits: n, total } = decompte(joueursActifs(joueurs, presents), propositions);
   $("recues").innerHTML = `<b>${n}</b> / ${total} propositions`;
   if (total > 0 && n >= total) { clearInterval(minuteur); setTimeout(fermerTour, 600); }
 }
@@ -131,7 +139,14 @@ function animerTirage() {
   const dist = etat.dist || [];
   const choisi = etat.choisi;
   $("phrase").innerHTML = `${echapper(etat.phrase)} <span class="curseur-texte">▍</span>`;
-  if (!choisi) { dessinerBarres([]); $("tire").classList.remove("cache"); $("tire").textContent = "Personne n'a proposé de mot."; return; }
+  if (!choisi) {
+    dessinerBarres([]);
+    $("tire").classList.remove("cache");
+    $("tire").innerHTML = `Personne n'a proposé de mot. <small>On rejoue ce mot.</small>`;
+    const tourVide = etat.cle;
+    setTimeout(() => { if (etat.phase === "tirage" && etat.cle === tourVide) tourSuivant(); }, 2500);
+    return;
+  }
   $("tire").classList.add("cache");
   const mots = dist.slice(0, 8).map((d) => d.mot);
   let i = 0, delai = 70;

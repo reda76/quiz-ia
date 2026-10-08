@@ -2,24 +2,24 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { genererCourses, ecartMoyen, descente, classementDroites, borner, aleatoire, BORNES } from "../js/machine.mjs";
 
-describe("les courses de taxi", () => {
-  it("sont reproductibles, dans les bornes, et proches de leur vrai tarif", () => {
+describe("les journées du glacier", () => {
+  it("sont reproductibles, dans les bornes, et proches de leur vrai rythme de ventes", () => {
     const a = genererCourses(42), b = genererCourses(42);
-    assert.deepEqual(a, b, "même graine, mêmes courses");
+    assert.deepEqual(a, b, "même graine, mêmes journées");
     assert.notDeepEqual(genererCourses(43).courses, a.courses);
     assert.equal(a.courses.length, 24);
     for (const c of a.courses) {
-      assert.ok(c.d >= 1 && c.d <= BORNES.distanceMax);
-      assert.ok(c.prix >= a.tarif.b && c.prix <= BORNES.prixMax, `prix ${c.prix}`);
+      assert.ok(c.d >= 3 && c.d <= BORNES.distanceMax, `température ${c.d}`);
+      assert.ok(c.prix >= 0 && c.prix <= BORNES.prixMax, `litres ${c.prix}`);
     }
-    // Le vrai tarif colle aux courses, sans les traverser exactement (il y a du trafic).
+    // Le vrai rythme colle aux journées, sans les traverser exactement (week-ends, orages).
     const e = ecartMoyen(a.courses, a.tarif.w, a.tarif.b);
-    assert.ok(e > 0.3 && e < 4, `écart du vrai tarif : ${e}`);
+    assert.ok(e > 0.3 && e < 6, `écart du vrai rythme : ${e}`);
   });
 });
 
 describe("l'écart moyen", () => {
-  it("vaut la moyenne des écarts absolus, en euros", () => {
+  it("vaut la moyenne des écarts absolus, en litres", () => {
     const c = [{ d: 10, prix: 23 }, { d: 5, prix: 15 }];
     assert.equal(ecartMoyen(c, 2, 3), (0 + 2) / 2);
     assert.equal(ecartMoyen([], 1, 1), 0);
@@ -60,5 +60,15 @@ describe("classement et curseurs", () => {
     assert.equal(borner("b", -2), 0);
     assert.ok(Math.abs(borner("w", 1.513) - 1.5) < 1e-9);
     assert.equal(typeof aleatoire(1)(), "number");
+  });
+});
+
+describe("les journées du glacier, sur 200 parties", () => {
+  it("restent dans le graphique et dans les bornes des règles Firebase (w ≤ 4, b ≤ 15)", () => {
+    for (let g = 1; g <= 200; g++) {
+      const { tarif, courses } = genererCourses(g);
+      assert.ok(tarif.w <= BORNES.w.max && tarif.b <= BORNES.b.max, `graine ${g}`);
+      for (const c of courses) assert.ok(c.prix >= 0 && c.prix <= BORNES.prixMax && c.d <= BORNES.distanceMax, `graine ${g}`);
+    }
   });
 });

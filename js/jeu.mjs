@@ -63,7 +63,7 @@ export function prenomsAffiches(joueurs) {
 /** Prénom saisi → prénom propre (1 à 20 caractères), ou null s'il est vide. */
 export function nettoyerPrenom(s) {
   const p = String(s || "").replace(/\s+/g, " ").trim().slice(0, 20);
-  return p || null;
+  return p ? p.charAt(0).toLocaleUpperCase("fr") + p.slice(1) : null;
 }
 
 /**
@@ -95,4 +95,23 @@ export function verifierQuestions(questions) {
     if (q.duree !== undefined && !(q.duree >= 5 && q.duree <= 120)) erreurs.push(`question ${i + 1} : durée entre 5 et 120 s`);
   });
   return erreurs;
+}
+
+/**
+ * Les inscrits qui comptent pour « tout le monde a répondu » : ceux dont le téléphone est
+ * connecté. Sans aucune marque de présence (règles pas publiées, ou mode sans présence), tous
+ * les inscrits comptent, comme avant.
+ * @returns {string[]} les uid
+ */
+export function joueursActifs(joueurs, presents) {
+  const inscrits = Object.keys(joueurs || {});
+  const p = presents || {};
+  if (!Object.keys(p).length) return inscrits;
+  return inscrits.filter((uid) => p[uid]);
+}
+
+/** Combien d'actifs ont répondu, et combien d'actifs en tout. */
+export function decompte(actifs, reponses) {
+  const r = reponses || {};
+  return { faits: actifs.filter((uid) => r[uid] !== undefined && r[uid] !== null).length, total: actifs.length };
 }

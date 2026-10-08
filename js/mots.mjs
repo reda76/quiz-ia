@@ -62,3 +62,14 @@ export function ajouter(phrase, mot) {
   if (!mot || mot === FIN) return phrase;
   return /^[,.;:!?]/.test(mot) ? `${phrase}${mot}` : `${phrase} ${mot}`;
 }
+
+/**
+ * Ce qui suit un tirage. Personne n'a proposé de mot → on REJOUE ce mot (rien n'est ajouté,
+ * et surtout pas une fin de phrase) ; « ⏹ » tiré ou phrase trop longue → fin ; sinon mot suivant.
+ * @returns {"rejouer"|"fin"|"suivant"}
+ */
+export function suiteDuTour(choisi, tour, toursMax) {
+  if (!choisi) return "rejouer";
+  if (choisi.mot === FIN || tour >= toursMax) return "fin";
+  return "suivant";
+}

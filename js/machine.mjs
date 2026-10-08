@@ -1,12 +1,16 @@
-// « BATTEZ LA MACHINE » — logique PURE : les courses de taxi, l'écart d'une droite, la descente
-// de la machine. Aucune dépendance au navigateur ni à Firebase (testée par `node --test`).
+// « BATTEZ LA MACHINE » — logique PURE : les journées d'un glacier, l'écart d'une droite, la
+// descente de la machine. Aucune dépendance au navigateur ni à Firebase (testée par `node --test`).
 //
-// Le jeu : chaque étudiant règle w (prix au km) et b (prise en charge) pour que SA droite passe
-// au plus près des courses passées ; le classement se fait à l'écart moyen en euros (celui du
-// cours, 2.7). Puis la machine fait la même chose seule, pas à pas : apprendre, c'est réduire
-// l'erreur (2.5).
+// Le jeu : chaque étudiant règle w (litres vendus en plus par degré) et b (litres vendus même par
+// 0 °C) pour que SA droite « ventes = w × température + b » passe au plus près des journées
+// passées ; le classement se fait à l'écart moyen en litres. Puis la machine fait la même chose
+// seule, pas à pas : apprendre, c'est réduire l'erreur.
+//
+// Noms des données gardés de la première version (et des règles Firebase) : une « course » est
+// une JOURNÉE { d: température en °C, prix: litres vendus } ; le « tarif » est le vrai rythme
+// de ventes caché. Les unités tiennent dans les bornes des règles (w ≤ 4, b ≤ 15).
 
-export const BORNES = { w: { min: 0, max: 4, pas: 0.05 }, b: { min: 0, max: 15, pas: 0.1 }, distanceMax: 25, prixMax: 70 };
+export const BORNES = { w: { min: 0, max: 4, pas: 0.05 }, b: { min: 0, max: 15, pas: 0.1 }, distanceMax: 35, prixMax: 100 };
 
 /** Générateur pseudo-aléatoire reproductible (mulberry32). */
 export function aleatoire(graine) {
@@ -27,8 +31,9 @@ function gauss(r) {
 }
 
 /**
- * Les courses passées : un vrai tarif (caché aux joueurs), et le prix réellement payé, qui s'en
- * écarte à cause du trafic — surtout vers le haut (un bouchon coûte, il ne rembourse pas).
+ * Les journées passées : un vrai rythme de ventes (caché aux joueurs), et les litres réellement
+ * vendus, qui s'en écartent — surtout vers le haut (un week-end ensoleillé vend plus, un orage
+ * en fin de journée fait baisser).
  * @returns {{ tarif: {w:number,b:number}, courses: Array<{d:number, prix:number}> }}
  */
 export function genererCourses(graine, n = 24) {
@@ -36,16 +41,16 @@ export function genererCourses(graine, n = 24) {
   const tarif = { w: Math.round((1.2 + r() * 1.2) * 20) / 20, b: Math.round((2.5 + r() * 4) * 10) / 10 };
   const courses = [];
   for (let i = 0; i < n; i++) {
-    const d = Math.round((1 + r() * (BORNES.distanceMax - 2)) * 10) / 10;
-    const trafic = Math.abs(gauss(r)) * 0.12 * d * (r() < 0.7 ? 1 : -0.6);
-    const prix = Math.max(tarif.b, tarif.w * d + tarif.b + trafic + gauss(r) * 1.2);
+    const d = Math.round((3 + r() * (BORNES.distanceMax - 5)) * 10) / 10;
+    const affluence = Math.abs(gauss(r)) * 0.12 * d * (r() < 0.7 ? 1 : -0.6);
+    const prix = Math.min(BORNES.prixMax, Math.max(0, tarif.w * d + tarif.b + affluence + gauss(r) * 1.2));
     courses.push({ d, prix: Math.round(prix * 10) / 10 });
   }
   courses.sort((a, b) => a.d - b.d);
   return { tarif, courses };
 }
 
-/** Écart moyen (€) entre la droite w·d + b et les prix payés. */
+/** Écart moyen (litres) entre la droite w·température + b et les ventes réelles. */
 export function ecartMoyen(courses, w, b) {
   if (!courses.length) return 0;
   return courses.reduce((s, c) => s + Math.abs(w * c.d + b - c.prix), 0) / courses.length;

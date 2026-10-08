@@ -1,22 +1,23 @@
-// « BATTEZ LA MACHINE » — l'écran d'animation. Il crée la partie (les courses de taxi), lance la
+// « BATTEZ LA MACHINE » — l'écran d'animation. Il crée la partie (les journées d'un glacier), lance la
 // manche, montre en direct la droite de chaque joueur et le classement à l'écart moyen, puis fait
 // jouer la machine (descente de gradient, pas à pas) et révèle le résultat.
 //
 // Tout l'état vit dans `jeux/<code>` : recharger cette page reprend la partie.
 
 import { creerTransport } from "./transport.mjs";
-import { genererCode, prenomsAffiches } from "./jeu.mjs";
+import { brancherNouvellePartie, poserQrRappel, annoncerALaSalle, urlPourLesJoueurs, codePourLesJoueurs, brancherRetourAuChoix } from "./commun.mjs";
+import { genererCode, joueursActifs, prenomsAffiches } from "./jeu.mjs";
 import { genererCourses, descente, classementDroites, couleurDe, fr } from "./machine.mjs";
 import { dessiner } from "./graphique.mjs";
 
 const $ = (id) => document.getElementById(id);
 // « Changer de jeu » garde le mode (local ou en ligne).
-document.querySelectorAll(".retour-choix").forEach((a) => { a.href = `animateur.html${location.search.includes("local") ? "?local=1" : ""}`; });
+brancherRetourAuChoix(location.search.includes("local"));
 const echapper = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const ORANGE = "#ff8a4c";
 
 let t, code, base;
-let etat = { phase: "attente" }, joueurs = {}, droites = {}, courses = [], machine = null, tarif = null;
+let etat = { phase: "attente" }, joueurs = {}, presents = {}, droites = {}, courses = [], machine = null, tarif = null;
 let minuteur = null, publication = null, animation = null;
 
 const chemin = (s = "") => `jeux/${code}${s ? `/${s}` : ""}`;
@@ -24,6 +25,7 @@ function montrer(vue) { for (const v of ["accueil", "jeu"]) $(`v-${v}`).classLis
 
 // ─── Démarrage ───────────────────────────────────────────────────────────────
 async function demarrer() {
+  brancherNouvellePartie("machine-code");
   t = await creerTransport();
   $("mode").textContent = t.local ? " · mode local" : "";
   const precedent = sessionStorage.getItem("machine-code");
@@ -37,18 +39,18 @@ async function demarrer() {
     await t.ecrire(chemin(), { hote: t.uid, creeLe: t.HORODATAGE, courses: partie.courses, tarif, etat: { phase: "attente", manche: 1 } });
     sessionStorage.setItem("machine-code", code);
   }
+  await annoncerALaSalle(t, "machine", code);
   afficherAccueil();
   t.ecouter(chemin("courses"), (c) => { courses = c || []; rafraichir(); });
   t.ecouter(chemin("joueurs"), (j) => { joueurs = j || {}; majJoueurs(); rafraichir(); });
+  t.ecouter(chemin("presents"), (p) => { presents = p || {}; });
   t.ecouter(chemin("droites"), (d) => { droites = d || {}; rafraichir(); });
   t.ecouter(chemin("machine"), (m) => { if (!animation) { machine = m; rafraichir(); } });
   t.ecouter(chemin("etat"), (e) => { etat = e || { phase: "attente" }; changerDePhase(); });
 }
 
 function afficherAccueil() {
-  const u = new URL("machine-jouer.html", location.href);
-  u.searchParams.set("p", code);
-  if (t.local) u.searchParams.set("local", "1");
+  const u = new URL(urlPourLesJoueurs("machine-jouer.html", code, t.local));
   if (window.qrcode) {
     const qr = window.qrcode(0, "M");
     qr.addData(u.toString());
@@ -56,7 +58,8 @@ function afficherAccueil() {
     $("qr").innerHTML = qr.createSvgTag({ cellSize: 8, margin: 2, scalable: true });
   }
   $("adresse").textContent = u.toString().replace(/^https?:\/\//, "").replace(/\?.*$/, "");
-  $("code").textContent = code;
+  $("code").textContent = codePourLesJoueurs(code);
+  poserQrRappel(u.toString(), codePourLesJoueurs(code));
 }
 
 function majJoueurs() {
@@ -98,7 +101,7 @@ async function publierClassement(avecMachine = false) {
 function changerDePhase() {
   clearInterval(minuteur);
   clearInterval(publication);
-  $("etat-bandeau").innerHTML = `${etat.manche ? `manche ${etat.manche} · ` : ""}code <strong>${code}</strong>`;
+  $("etat-bandeau").innerHTML = `${etat.manche ? `manche ${etat.manche} · ` : ""}code <strong>${codePourLesJoueurs(code)}</strong>`;
   if (etat.phase === "attente") return montrer("accueil");
   montrer("jeu");
   $("action").classList.remove("cache");
@@ -114,11 +117,11 @@ function changerDePhase() {
     const tic = () => {
       const reste = Math.max(0, Math.ceil((fin - t.maintenant()) / 1000));
       // Le temps est un MAXIMUM : dès que tout le monde a validé sa droite, la manche s'arrête.
-      const presents = Object.keys(joueurs);
-      const validees = presents.filter((uid) => droites[uid]?.valide).length;
-      $("p-temps").innerHTML = `${Math.floor(reste / 60)}:${String(reste % 60).padStart(2, "0")}<small>${validees} / ${presents.length} droites validées</small>`;
+      const actifs = joueursActifs(joueurs, presents);
+      const validees = actifs.filter((uid) => droites[uid]?.valide).length;
+      $("p-temps").innerHTML = `${Math.floor(reste / 60)}:${String(reste % 60).padStart(2, "0")}<small>${validees} / ${actifs.length} droites validées</small>`;
       $("p-temps").classList.toggle("urgent", reste <= 10);
-      if (reste === 0 || (presents.length > 0 && validees === presents.length)) arreter();
+      if (reste === 0 || (actifs.length > 0 && validees === actifs.length)) arreter();
     };
     tic();
     minuteur = setInterval(tic, 250);
@@ -152,7 +155,7 @@ function jouerMachine() {
   animation = setInterval(async () => {
     k = Math.min(suite.length - 1, k + prochain());
     machine = suite[k];
-    $("p-machine").innerHTML = `<strong>${fr(machine.ecart)} €</strong>écart moyen · étape ${machine.etape} / ${suite.length - 1}<br>w = ${fr(machine.w)} €/km · b = ${fr(machine.b)} €`;
+    $("p-machine").innerHTML = `<strong>${fr(machine.ecart)} L</strong>écart moyen · étape ${machine.etape} / ${suite.length - 1}<br>w = ${fr(machine.w)} L/°C · b = ${fr(machine.b)} L`;
     dessinerCourbe(suite.slice(0, k + 1));
     rafraichir();
     if (performance.now() - derniereEcriture > 300 || k === suite.length - 1) {
@@ -185,11 +188,11 @@ function afficherResultat() {
   const victoire = meilleur && m && meilleur.ecart < m.ecart;
   $("p-temps").innerHTML = victoire ? `${echapper(meilleur.prenom)} bat la machine !<small>Bravo</small>` : `La machine gagne<small>Elle a appris seule</small>`;
   $("p-machine").classList.remove("cache");
-  $("p-machine").innerHTML = `<strong>${fr(m?.ecart ?? 0)} €</strong>écart de la machine : ${etat.etapes} étapes, calculées en ${etat.calculMs} ms`;
+  $("p-machine").innerHTML = `<strong>${fr(m?.ecart ?? 0)} L</strong>écart de la machine : ${etat.etapes} étapes, calculées en ${etat.calculMs} ms`;
   $("p-titre").textContent = "Classement final";
-  $("action").textContent = "Révéler le vrai tarif";
+  $("action").textContent = "Révéler le vrai rythme";
   $("action").onclick = () => {
-    $("p-tarif").innerHTML = `Le vrai tarif : <b>b = ${fr(tarif.b)} €</b> et <b>w = ${fr(tarif.w)} €/km</b>. Même lui ne passe pas par tous les points : le trafic fait varier chaque course.`;
+    $("p-tarif").innerHTML = `Le vrai rythme : <b>b = ${fr(tarif.b)} L</b> et <b>w = ${fr(tarif.w)} L/°C</b>. Même lui rate des journées : week-ends, orages, vacances.`;
     $("p-tarif").classList.remove("cache");
     $("action").classList.add("cache");
   };
@@ -220,7 +223,7 @@ function rafraichir() {
     <li class="${l.machine ? "machine" : ""}"><span class="rang">${l.rang}</span>
       <span class="pastille" style="background:${l.machine ? "#fff" : couleurDe(l.uid)}"></span>
       <span>${echapper(l.machine ? "La machine" : noms[l.uid] || l.prenom)}</span>
-      <span class="ecart">${fr(l.ecart)} €</span></li>`).join("") || `<li>Les droites arrivent…</li>`;
+      <span class="ecart">${fr(l.ecart)} L</span></li>`).join("") || `<li>Les droites arrivent…</li>`;
 }
 
 // ─── Commandes ───────────────────────────────────────────────────────────────

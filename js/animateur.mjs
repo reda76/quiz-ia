@@ -6,19 +6,20 @@
 // partie là où elle en était (même animateur, même navigateur).
 
 import { creerTransport } from "./transport.mjs";
-import { classement, genererCode, melanger, prenomsAffiches, repartition, verifierQuestions } from "./jeu.mjs";
+import { brancherNouvellePartie, poserQrRappel, annoncerALaSalle, urlPourLesJoueurs, codePourLesJoueurs, brancherRetourAuChoix } from "./commun.mjs";
+import { classement, decompte, genererCode, joueursActifs, melanger, prenomsAffiches, repartition, verifierQuestions } from "./jeu.mjs";
 import { QUESTIONS, TITRE } from "./questions.mjs";
 
 const $ = (id) => document.getElementById(id);
 // « Changer de jeu » garde le mode (local ou en ligne).
-document.querySelectorAll(".retour-choix").forEach((a) => { a.href = `animateur.html${location.search.includes("local") ? "?local=1" : ""}`; });
+brancherRetourAuChoix(location.search.includes("local"));
 const LETTRES = ["A", "B", "C", "D"];
 const DUREE_DEFAUT = 20;
 const echapper = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 let t, code, questions = QUESTIONS, titre = TITRE;
 let etat = { phase: "attente" };
-let joueurs = {};
+let joueurs = {}, presents = {};
 let reponsesCourantes = {};
 let arretReponses = null;
 let minuteur = null;
@@ -30,6 +31,7 @@ function erreur(m) { $("erreur").textContent = m || ""; }
 
 // ─── Démarrage : nouvelle partie, ou reprise après un rechargement ───────────
 async function demarrer() {
+  brancherNouvellePartie("quiz-ia-code");
   t = await creerTransport();
   const precedent = sessionStorage.getItem("quiz-ia-code");
   if (precedent && (await t.lire(`parties/${precedent}/hote`)) === t.uid) {
@@ -42,9 +44,11 @@ async function demarrer() {
     await publierQuestionsCachees();
     sessionStorage.setItem("quiz-ia-code", code);
   }
+  await annoncerALaSalle(t, "quiz", code);
   $("titre-quiz").innerHTML = `<strong>${echapper(titre)}</strong>${t.local ? " · mode local" : ""}`;
   afficherAccueil();
   t.ecouter(`parties/${code}/joueurs`, (j) => { joueurs = j || {}; majJoueurs(); });
+  t.ecouter(`parties/${code}/presents`, (p) => { presents = p || {}; if (etat.phase === "question") majReponsesRecues(); });
   t.ecouter(`parties/${code}/etat`, (e) => { etat = e || { phase: "attente" }; afficher(); });
 }
 
@@ -53,12 +57,8 @@ async function publierQuestionsCachees() {
   await t.ecrire(`parties/${code}/questions`, { titre, liste: questions });
 }
 
-function urlJoueur() {
-  const u = new URL("jouer.html", location.href);
-  u.searchParams.set("p", code);
-  if (t.local) u.searchParams.set("local", "1");
-  return u.toString();
-}
+/** L'adresse du QR : la salle s'il y en a une (un QR pour tous les jeux), sinon ce quiz. */
+const urlJoueur = () => urlPourLesJoueurs("jouer.html", code, t.local);
 
 function afficherAccueil() {
   const url = urlJoueur();
@@ -69,7 +69,8 @@ function afficherAccueil() {
     $("qr").innerHTML = qr.createSvgTag({ cellSize: 8, margin: 2, scalable: true });
   } else $("qr").textContent = url;
   $("adresse").textContent = url.replace(/^https?:\/\//, "").replace(/\?.*$/, "");
-  $("code").textContent = code;
+  $("code").textContent = codePourLesJoueurs(code);
+  poserQrRappel(url, codePourLesJoueurs(code));
   $("nb-questions").textContent = `${questions.length} questions`;
 }
 
@@ -150,7 +151,7 @@ function afficher() {
   clearInterval(minuteur);
   if (arretReponses && etat.phase !== "question") { arretReponses(); arretReponses = null; }
   const n = etat.total ? `Question ${etat.index + 1} / ${etat.total}` : "";
-  $("etat-bandeau").innerHTML = `${n}${n ? " · " : ""}code <strong>${code}</strong>`;
+  $("etat-bandeau").innerHTML = `${n}${n ? " · " : ""}code <strong>${codePourLesJoueurs(code)}</strong>`;
   if (etat.phase === "attente") return montrer("accueil");
   if (etat.phase === "question") return afficherQuestion();
   if (etat.phase === "revelation") return afficherRevelation();
@@ -193,8 +194,8 @@ function afficherCode(id, code) {
 }
 
 function majReponsesRecues() {
-  const n = Object.keys(reponsesCourantes).length;
-  const total = Object.keys(joueurs).length;
+  // Seuls les téléphones encore connectés comptent : un étudiant parti ne bloque plus personne.
+  const { faits: n, total } = decompte(joueursActifs(joueurs, presents), reponsesCourantes);
   $("q-recues").innerHTML = `${n} / ${total}<small>réponses</small>`;
   // Tout le monde a répondu : inutile d'attendre la fin du temps.
   if (etat.phase === "question" && total > 0 && n >= total) { clearInterval(minuteur); setTimeout(reveler, 700); }

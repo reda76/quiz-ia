@@ -3,23 +3,27 @@
 // salle ; chaque groupe est décrit (effectif, moyennes) et la salle le nomme.
 
 import { creerTransport } from "./transport.mjs";
-import { $, echapper, afficherAccueil, majPrenoms, partieAnimateur } from "./commun.mjs";
+import { $, echapper, afficherAccueil, majPrenoms, partieAnimateur, brancherNouvellePartie, annoncerALaSalle, codePourLesJoueurs } from "./commun.mjs";
 import { AXES, COULEURS, NOMS_COULEURS, kMoyennes, normaliser, portraits } from "./groupes.mjs";
 import { dessinerNuage } from "./nuage.mjs";
+import { joueursActifs } from "./jeu.mjs";
 
-let t, code, etat = { phase: "attente" }, joueurs = {}, points = {}, animation = null;
+let t, code, etat = { phase: "attente" }, joueurs = {}, presents = {}, points = {}, animation = null;
 const chemin = (s = "") => `groupes/${code}${s ? `/${s}` : ""}`;
 const montrer = (v) => { for (const x of ["accueil", "jeu"]) $(`v-${x}`).classList.toggle("cache", x !== v); };
 const axesDe = (id) => AXES.find((a) => a.id === id) || AXES[0];
 const fmt = (v, a) => `${(Math.round(v * 10) / 10).toString().replace(".", ",")}${a.unite ? ` ${a.unite}` : ""}`;
 
 async function demarrer() {
+  brancherNouvellePartie("groupes-code");
   t = await creerTransport();
   $("mode-local").textContent = t.local ? " · mode local" : "";
   $("axes").innerHTML = AXES.map((a) => `<option value="${a.id}">${echapper(a.x.label)} × ${echapper(a.y.label)}</option>`).join("");
   code = await partieAnimateur({ t, racine: "groupes", memo: "groupes-code", creer: async () => ({ etat: { phase: "attente" } }) });
+  await annoncerALaSalle(t, "groupes", code);
   afficherAccueil("groupes-jouer.html", code, t.local);
   t.ecouter(chemin("joueurs"), (j) => { joueurs = j || {}; majPrenoms(joueurs); majPlaces(); });
+  t.ecouter(chemin("presents"), (p) => { presents = p || {}; majPlaces(); });
   t.ecouter(chemin("points"), (p) => { points = p || {}; if (etat.phase === "placement") dessinerPlacement(); majPlaces(); });
   t.ecouter(chemin("etat"), (e) => { etat = e || { phase: "attente" }; afficher(); });
 }
@@ -35,9 +39,10 @@ function liste() {
 }
 
 async function regrouper() {
-  const k = Number($("k").value) || 3;
   const pts = liste();
-  if (pts.length < k) { $("erreur").textContent = `Il faut au moins ${k} points placés pour former ${k} groupes.`; return; }
+  // Moins de points que de groupes demandés : autant de groupes que de points (au moins 2).
+  const k = Math.min(Number($("k").value) || 3, pts.length);
+  if (k < 2) { $("erreur").textContent = "Il faut au moins 2 points placés pour former des groupes."; return; }
   $("erreur").textContent = "";
   const axes = axesDe(etat.axes);
   const suite = kMoyennes(pts.map((p) => normaliser(p, axes)), k);
@@ -57,7 +62,7 @@ function etapeSuivante() {
 // ─── Affichage ───────────────────────────────────────────────────────────────
 function afficher() {
   clearTimeout(animation);
-  $("etat-bandeau").innerHTML = `code <strong>${code}</strong>`;
+  $("etat-bandeau").innerHTML = `code <strong>${codePourLesJoueurs(code)}</strong>`;
   if (etat.phase === "attente") return montrer("accueil");
   montrer("jeu");
   $("autre").classList.toggle("cache", etat.phase !== "fin");
@@ -83,8 +88,9 @@ function afficher() {
 let regroupementLance = false;
 function majPlaces() {
   if (etat.phase !== "placement") { regroupementLance = false; return; }
-  const total = Object.keys(joueurs).length;
-  const valides = Object.entries(points).filter(([uid, p]) => joueurs[uid] && p.valide).length;
+  const actifs = joueursActifs(joueurs, presents);
+  const total = actifs.length;
+  const valides = actifs.filter((uid) => points[uid]?.valide).length;
   $("places").innerHTML = `<b>${valides}</b> / ${total} positions validées`;
   // Dès que tout le monde a validé, les groupes se forment sans attendre.
   if (total > 0 && valides === total && !regroupementLance) { regroupementLance = true; setTimeout(regrouper, 800); }

@@ -1,5 +1,5 @@
-// Le GRAPHIQUE des courses (SVG), commun au grand écran et aux téléphones : les courses en
-// points, et des droites prix = w × distance + b.
+// Le GRAPHIQUE des ventes (SVG), commun au grand écran et aux téléphones : les journées en
+// points (température, litres vendus), et des droites ventes = w × température + b.
 
 import { BORNES } from "./machine.mjs";
 
@@ -25,9 +25,9 @@ export function dessiner(svg, courses, droites, o = {}) {
   }
   for (let p = 0; p <= BORNES.prixMax; p += 10) {
     morceaux.push(`<line x1="${X(0)}" y1="${Y(p)}" x2="${X(BORNES.distanceMax)}" y2="${Y(p)}" class="grille"/>`);
-    morceaux.push(`<text x="${X(0) - police * 0.5}" y="${Y(p) + police * 0.3}" class="graduation" text-anchor="end" font-size="${police * 0.8}">${p} €</text>`);
+    morceaux.push(`<text x="${X(0) - police * 0.5}" y="${Y(p) + police * 0.3}" class="graduation" text-anchor="end" font-size="${police * 0.8}">${p} L</text>`);
   }
-  morceaux.push(`<text x="${(X(0) + X(BORNES.distanceMax)) / 2}" y="${H - police * 0.4}" class="axe" text-anchor="middle" font-size="${police * 0.9}">distance (km)</text>`);
+  morceaux.push(`<text x="${(X(0) + X(BORNES.distanceMax)) / 2}" y="${H - police * 0.4}" class="axe" text-anchor="middle" font-size="${police * 0.9}">température (°C)</text>`);
   // Écarts de la droite suivie (les « erreurs » rendues visibles)
   if (o.residus) {
     for (const c of courses) {
@@ -37,8 +37,10 @@ export function dessiner(svg, courses, droites, o = {}) {
   }
   // Droites (les plus fines d'abord, la plus épaisse par-dessus)
   for (const dr of [...droites].sort((a, b) => (a.epaisseur || 2) - (b.epaisseur || 2))) {
-    const y0 = dr.b, y1 = dr.w * BORNES.distanceMax + dr.b;
-    morceaux.push(`<line x1="${X(0)}" y1="${Y(y0)}" x2="${X(BORNES.distanceMax)}" y2="${Y(y1)}" stroke="${dr.couleur}" stroke-width="${dr.epaisseur || 2}" stroke-opacity="${dr.opacite ?? 0.75}" stroke-linecap="round"/>`);
+    // Coupée au haut du cadre : au-delà de prixMax, la droite sortait du graphique.
+    const xFin = dr.w > 0 ? Math.min(BORNES.distanceMax, (BORNES.prixMax - dr.b) / dr.w) : BORNES.distanceMax;
+    const y0 = dr.b, y1 = dr.w * xFin + dr.b;
+    morceaux.push(`<line x1="${X(0)}" y1="${Y(y0)}" x2="${X(xFin)}" y2="${Y(y1)}" stroke="${dr.couleur}" stroke-width="${dr.epaisseur || 2}" stroke-opacity="${dr.opacite ?? 0.75}" stroke-linecap="round"/>`);
     if (dr.etiquette) {
       const d = Math.min(BORNES.distanceMax, (BORNES.prixMax - dr.b) / Math.max(dr.w, 1e-6));
       const xe = Math.min(X(d), X(BORNES.distanceMax)) - police * 0.3, ye = Y(Math.min(BORNES.prixMax, dr.w * Math.min(d, BORNES.distanceMax) + dr.b)) - police * 0.5;

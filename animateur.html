@@ -3,44 +3,53 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Animer · choisir un jeu</title>
+  <title>Animer · la salle</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <main class="ecran">
-    <div class="bandeau"><span><strong>Animer</strong> · choisis le jeu à projeter</span><span class="aide">Chaque jeu crée sa propre partie, avec son code.</span></div>
-    <section class="choix-jeux">
-      <a class="carte-jeu c0" href="quiz.html">
-        <span class="icone-jeu">?</span>
-        <span class="nom-jeu">Quiz</span>
-        <span class="desc-jeu">Les questions s'affichent sur le grand écran, la salle répond sur son téléphone. Répartition des réponses, explication, classement, podium.</span>
-        <span class="go">Lancer le quiz →</span>
-      </a>
-      <a class="carte-jeu c2" href="machine.html">
-        <span class="icone-jeu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="3" y1="20" x2="21" y2="5"/><circle cx="6" cy="15" r="1.6" fill="currentColor"/><circle cx="11" cy="13" r="1.6" fill="currentColor"/><circle cx="15" cy="8" r="1.6" fill="currentColor"/><circle cx="19" cy="9" r="1.6" fill="currentColor"/></svg></span>
-        <span class="nom-jeu">Battez la machine</span>
-        <span class="desc-jeu">Chacun règle w et b pour que sa droite colle aux courses de taxi. Puis la machine apprend seule, sous les yeux de la salle.</span>
-        <span class="go">Lancer le jeu →</span>
-      </a>
-      <a class="carte-jeu c3" href="mots.html">
-        <span class="icone-jeu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="12.5" x2="13" y2="12.5"/></svg></span>
-        <span class="nom-jeu">La salle est un ChatGPT</span>
-        <span class="desc-jeu">Chacun propose le mot suivant de la phrase ; on tire selon les probabilités. La salle devient un modèle de langage.</span>
-        <span class="go">Lancer le jeu →</span>
-      </a>
-      <a class="carte-jeu c1" href="groupes.html">
-        <span class="icone-jeu"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="6.5" r="2.3"/><circle cx="10.5" cy="5" r="2.3"/><circle cx="8" cy="10.5" r="2.3"/><circle cx="16" cy="14.5" r="2.3"/><circle cx="19.5" cy="19" r="2.3"/><circle cx="14" cy="19.5" r="2.3"/></svg></span>
-        <span class="nom-jeu">Qui se ressemble s'assemble</span>
-        <span class="desc-jeu">Chacun se place sur une carte en deux réponses. La machine forme des groupes sans étiquette ; la salle les nomme.</span>
-        <span class="go">Lancer le jeu →</span>
-      </a>
+    <div class="bandeau">
+      <span><strong>La salle</strong> · un seul QR code pour tous les jeux<span id="mode-local"></span></span>
+      <span class="bandeau-droite"><button class="nouvelle-partie" id="nouvelle-partie" type="button" title="Abandonner cette salle et en créer une nouvelle (nouveau code)">↺ Nouvelle salle</button></span>
+    </div>
+    <section class="salle">
+      <div class="salle-qr">
+        <div class="qr" id="qr"></div>
+        <div class="adresse" id="adresse"></div>
+        <div class="code" id="code"></div>
+        <div class="compte" id="compte">En attente des joueurs…</div>
+        <div class="prenoms" id="prenoms"></div>
+      </div>
+      <div class="choix-jeux">
+        <a class="carte-jeu c0" data-jeu="quiz" href="quiz.html">
+          <span class="icone-jeu">?</span>
+          <span class="nom-jeu">Quiz</span>
+          <span class="desc-jeu">Les questions s'affichent sur le grand écran, la salle répond sur son téléphone. Répartition des réponses, explication, classement, podium.</span>
+          <span class="go">Lancer le quiz →</span>
+        </a>
+        <a class="carte-jeu c2" data-jeu="machine" href="machine.html">
+          <span class="icone-jeu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="3" y1="20" x2="21" y2="5"/><circle cx="6" cy="15" r="1.6" fill="currentColor"/><circle cx="11" cy="13" r="1.6" fill="currentColor"/><circle cx="15" cy="8" r="1.6" fill="currentColor"/><circle cx="19" cy="9" r="1.6" fill="currentColor"/></svg></span>
+          <span class="nom-jeu">Battez la machine</span>
+          <span class="desc-jeu">Un glacier prévoit ses ventes selon la température. Chacun règle w et b pour que sa droite colle aux journées passées, puis la machine apprend seule.</span>
+          <span class="go">Lancer le jeu →</span>
+        </a>
+        <a class="carte-jeu c3" data-jeu="mots" href="mots.html">
+          <span class="icone-jeu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="12.5" x2="13" y2="12.5"/></svg></span>
+          <span class="nom-jeu">La salle est un ChatGPT</span>
+          <span class="desc-jeu">Chacun propose le mot suivant de la phrase ; on tire selon les probabilités. La salle devient un modèle de langage.</span>
+          <span class="go">Lancer le jeu →</span>
+        </a>
+        <a class="carte-jeu c1" data-jeu="groupes" href="groupes.html">
+          <span class="icone-jeu"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="6.5" r="2.3"/><circle cx="10.5" cy="5" r="2.3"/><circle cx="8" cy="10.5" r="2.3"/><circle cx="16" cy="14.5" r="2.3"/><circle cx="19.5" cy="19" r="2.3"/><circle cx="14" cy="19.5" r="2.3"/></svg></span>
+          <span class="nom-jeu">Qui se ressemble s'assemble</span>
+          <span class="desc-jeu">Chacun se place sur une carte en deux réponses. La machine forme des groupes sans étiquette ; la salle les nomme.</span>
+          <span class="go">Lancer le jeu →</span>
+        </a>
+      </div>
     </section>
-    <p class="aide">Les étudiants rejoignent toujours au même endroit : le QR code du jeu, ou n'importe quel code sur <strong id="adresse-jouer"></strong>.</p>
+    <p class="erreur" id="erreur"></p>
   </main>
-  <script>
-    // Le mode local (?local=1) suit le choix du jeu.
-    document.querySelectorAll(".carte-jeu").forEach((a) => { a.href += location.search; });
-    document.getElementById("adresse-jouer").textContent = new URL("jouer.html", location.href).toString().replace(/^https?:\/\//, "");
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+  <script type="module" src="js/salle-animateur.mjs"></script>
 </body>
 </html>

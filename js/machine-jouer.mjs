@@ -3,6 +3,7 @@
 // (pendant la manche seulement).
 
 import { creerTransport } from "./transport.mjs";
+import { garderPrenom, prenomGarde, suivreLaSalle } from "./commun.mjs";
 import { nettoyerPrenom } from "./jeu.mjs";
 import { BORNES, borner, ecartMoyen, couleurDe, fr } from "./machine.mjs";
 import { dessiner } from "./graphique.mjs";
@@ -23,8 +24,11 @@ async function demarrer() {
   $("code").value = code;
   if (code) $("code").classList.add("cache");
   for (const c of ["w", "b"]) Object.assign($(`r-${c}`), { min: BORNES[c].min, max: BORNES[c].max, step: BORNES[c].pas });
-  if (memo && memo.code === code && (await t.lire(`jeux/${code}/joueurs/${t.uid}`))) { prenom = memo.prenom; return suivre(); }
+  // Déjà inscrit à cette partie (rechargement, onglet refermé puis QR rescanné) : on reprend sa place.
+  const place = code ? await t.lire(`jeux/${code}/joueurs/${t.uid}`) : null;
+  if (place) { prenom = place.prenom; sessionStorage.setItem(MEMO, JSON.stringify({ code, prenom })); return suivre(); }
   montrer("rejoindre");
+  $("prenom").value = prenomGarde();
   // Arrivé depuis la page commune avec un prénom déjà saisi : on rejoint directement.
   const prenomTransmis = sessionStorage.getItem("quiz-ia-prenom-transmis");
   if (prenomTransmis && code) { sessionStorage.removeItem("quiz-ia-prenom-transmis"); $("prenom").value = prenomTransmis; $("form").requestSubmit(); }
@@ -39,8 +43,9 @@ $("form").onsubmit = async (e) => {
   $("entrer").disabled = true;
   try {
     if (!(await t.lire(`jeux/${c}/hote`))) throw new Error("Partie introuvable : vérifie le code.");
-    await t.ecrire(`jeux/${c}/joueurs/${t.uid}`, { prenom: p, rejointLe: t.HORODATAGE });
-    code = c; prenom = p;
+    const place = await t.lire(`jeux/${c}/joueurs/${t.uid}`);
+    if (!place) await t.ecrire(`jeux/${c}/joueurs/${t.uid}`, { prenom: p, rejointLe: t.HORODATAGE });
+    code = c; prenom = place?.prenom || p;
     sessionStorage.setItem(MEMO, JSON.stringify({ code, prenom }));
     suivre();
   } catch (err) {
@@ -50,6 +55,9 @@ $("form").onsubmit = async (e) => {
 };
 
 function suivre() {
+  t.presence(`jeux/${code}/presents/${t.uid}`);
+  garderPrenom(prenom);
+  suivreLaSalle(t, "machine", code);
   $("qui").innerHTML = `<strong>${prenom.replace(/</g, "&lt;")}</strong>`;
   $("ou").textContent = `partie ${code}`;
   t.ecouter(`jeux/${code}/courses`, (c) => { courses = c || []; afficher(); });
@@ -71,13 +79,13 @@ function afficher() {
   if (!etat.phase || etat.phase === "attente") return message(`Bienvenue ${prenom} !`, "Regarde le grand écran : la manche va commencer.");
   if (etat.phase === "jeu") return afficherJeu();
   const monEcart = courses.length ? ecartMoyen(courses, w, b) : 0;
-  if (etat.phase === "stop") return message("Temps écoulé !", `Ton écart moyen : <b>${fr(monEcart)} €</b>${rang?.rang ? ` · ${rang.rang}${rang.rang === 1 ? "er" : "e"} sur ${rang.total}` : ""}<br>Regarde l'écran : la machine va jouer.`);
-  if (etat.phase === "machine") return message("La machine apprend…", `Son écart : <b>${machine ? fr(machine.ecart) : "…"} €</b><br>Le tien : <b>${fr(monEcart)} €</b>`);
+  if (etat.phase === "stop") return message("Temps écoulé !", `Ton écart moyen : <b>${fr(monEcart)} L</b>${rang?.rang ? ` · ${rang.rang}${rang.rang === 1 ? "er" : "e"} sur ${rang.total}` : ""}<br>Regarde l'écran : la machine va jouer.`);
+  if (etat.phase === "machine") return message("La machine apprend…", `Son écart : <b>${machine ? fr(machine.ecart) : "…"} L</b><br>Le tien : <b>${fr(monEcart)} L</b>`);
   if (etat.phase === "resultat") {
     const m = machine ? machine.ecart : null;
     const gagne = m !== null && monEcart < m;
     return message(gagne ? "Tu as battu la machine ! 🎉" : "La machine t'a battu",
-      `Ton écart : <b>${fr(monEcart)} €</b> · la machine : <b>${m !== null ? fr(m) : "…"} €</b>${rang?.rang ? `<br>${rang.rang}${rang.rang === 1 ? "er" : "e"} sur ${rang.total}, machine comprise` : ""}`);
+      `Ton écart : <b>${fr(monEcart)} L</b> · la machine : <b>${m !== null ? fr(m) : "…"} L</b>${rang?.rang ? `<br>${rang.rang}${rang.rang === 1 ? "er" : "e"} sur ${rang.total}, machine comprise` : ""}`);
   }
 }
 
@@ -85,15 +93,15 @@ function afficherJeu() {
   montrer("jeu");
   majValider();
   $("r-w").value = w; $("r-b").value = b;
-  $("v-w").textContent = `${fr(w)} €/km`;
-  $("v-b").textContent = `${fr(b)} €`;
+  $("v-w").textContent = `${fr(w)} L/°C`;
+  $("v-b").textContent = `${fr(b)} L`;
   if (courses.length) dessiner($("mini"), courses, [{ w, b, couleur: couleurDe(t.uid), epaisseur: 5, opacite: 1 }], { largeur: 600, hauteur: 380, police: 22, residus: { w, b } });
   majScore();
 }
 
 function majScore() {
   if (!courses.length) return;
-  $("j-ecart").innerHTML = `${fr(ecartMoyen(courses, w, b))} €<small>ton écart moyen</small>`;
+  $("j-ecart").innerHTML = `${fr(ecartMoyen(courses, w, b))} L<small>ton écart moyen</small>`;
   $("j-rang").textContent = rang?.rang ? `${rang.rang}${rang.rang === 1 ? "er" : "e"} / ${rang.total}` : "";
 }
 

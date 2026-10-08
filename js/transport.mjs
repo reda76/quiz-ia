@@ -1,6 +1,7 @@
 // La SYNCHRONISATION entre l'écran d'animation et les téléphones, derrière une interface unique :
 //   init() → { uid } · ecouter(chemin, rappel) → arrêter · ecrire(chemin, valeur)
 //   maj(chemin, objet) · lire(chemin) · HORODATAGE (heure du serveur à l'écriture)
+//   presence(chemin) : « je suis là » tant que la page est ouverte et connectée
 //
 // Deux réalisations :
 //   • Firebase Realtime Database (le vrai jeu, sur GitHub Pages) — `config.mjs` ;
@@ -30,7 +31,7 @@ async function transportFirebase() {
   const base_ = db.getDatabase(app);
   const uid = await new Promise((resolve, reject) => {
     const stop = onAuthStateChanged(auth, (u) => { if (u) { stop(); resolve(u.uid); } });
-    signInAnonymously(auth).catch(reject);
+    connecterAnonyme(() => signInAnonymously(auth)).catch(reject);
   });
   let decalage = 0;
   db.onValue(db.ref(base_, ".info/serverTimeOffset"), (s) => { decalage = s.val() || 0; });
@@ -43,7 +44,34 @@ async function transportFirebase() {
     ecrire: (chemin, valeur) => db.set(db.ref(base_, chemin), valeur),
     maj: (chemin, objet) => db.update(db.ref(base_, chemin), objet),
     lire: async (chemin) => (await db.get(db.ref(base_, chemin))).val(),
+    // Le serveur efface la marque tout seul quand le téléphone se déconnecte (onglet fermé,
+    // réseau perdu) ; elle revient à chaque reconnexion. Refusée (règles pas encore publiées) :
+    // sans effet, les écrans comptent alors tous les inscrits comme avant.
+    presence(chemin) {
+      const r = db.ref(base_, chemin);
+      db.onValue(db.ref(base_, ".info/connected"), (s) => {
+        if (s.val() === true) db.onDisconnect(r).remove().then(() => db.set(r, true)).catch(() => {});
+      });
+    },
   };
+}
+
+/**
+ * Connexion anonyme avec nouvelles tentatives. Firebase plafonne les créations de compte par
+ * adresse IP (100 par heure) et refuse les rafales (`auth/too-many-requests`) : toute une salle
+ * derrière le même Wi-Fi qui scanne en même temps peut y toucher. On réessaie en s'espaçant,
+ * puis on dit quoi faire au lieu d'un message technique.
+ */
+export async function connecterAnonyme(seConnecter, { essais = 5, attente = (ms) => new Promise((r) => setTimeout(r, ms)) } = {}) {
+  for (let i = 0; ; i++) {
+    try { return await seConnecter(); }
+    catch (e) {
+      const rafale = /too-many-requests|quota/i.test(`${e?.code} ${e?.message}`);
+      if (!rafale) throw e;
+      if (i >= essais - 1) throw new Error("Trop de connexions depuis ce réseau. Passe en données mobiles (4G/5G) puis recharge la page.");
+      await attente(1500 * 2 ** i + Math.random() * 1000);
+    }
+  }
 }
 
 // ─── Local (onglets du même navigateur) ─────────────────────────────────────
@@ -124,5 +152,9 @@ function transportLocal() {
       apres();
     },
     lire: async (chemin) => obtenir(lireTout(), chemin),
+    presence(chemin) {
+      ecrireCase(chemin, true); apres();
+      addEventListener("pagehide", () => { ecrireCase(chemin, null); canal.postMessage("change"); });
+    },
   };
 }

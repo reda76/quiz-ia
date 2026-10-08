@@ -11,8 +11,8 @@
 <body>
   <main class="ecran">
     <div class="bandeau">
-      <span><a class="retour-choix" href="animateur.html">← Changer de jeu</a> <strong>Battez la machine</strong> · prix = w × distance + b<span id="mode"></span></span>
-      <span id="etat-bandeau"></span>
+      <span><a class="retour-choix" href="animateur.html">← Changer de jeu</a> <strong>Battez la machine</strong> · ventes = w × température + b<span id="mode"></span></span>
+      <span class="bandeau-droite"><button class="nouvelle-partie" id="nouvelle-partie" type="button" title="Abandonner la partie en cours et en créer une nouvelle (nouveau code)">↺ Nouvelle partie</button><span id="etat-bandeau"></span></span>
     </div>
 
     <!-- ACCUEIL -->
@@ -21,7 +21,7 @@
         <div class="qr" id="qr"></div>
         <div class="rejoindre">
           <h1>Battez la machine</h1>
-          <p class="consigne">Réglez la prise en charge <b>b</b> et le prix au kilomètre <b>w</b> pour que votre droite passe au plus près des courses passées.</p>
+          <p class="consigne">Un glacier doit prévoir son stock. Réglez <b>b</b> (litres vendus même par 0 °C) et <b>w</b> (litres en plus par degré) pour que votre droite passe au plus près des journées passées.</p>
           <div class="adresse" id="adresse"></div>
           <div class="code" id="code"></div>
           <div class="compte" id="compte">En attente des joueurs…</div>
